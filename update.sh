@@ -12,7 +12,7 @@ fi
 
 echo "Latest release: $LATEST_TAG"
 
-git checkout "$LATEST_TAG"
+git switch --detach "$LATEST_TAG"
 
 echo "Installing..."
 

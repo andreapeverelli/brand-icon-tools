@@ -7,7 +7,8 @@ SVG="${1:-}"
 OUT="out"
 
 if [[ -z "$SVG" ]]; then
-	echo "Usage: brand-icon-tools logo.svg"
+	echo "Usage:"
+	echo "brand-icon-tools svg_icon_path.svg"
 	exit 1
 fi
 
