@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+<?php
+
+namespace AndreaPeverelli\PhxTools;
+
+require_once(__DIR__ . "/../vendor/autoload.php");
+
+exit(App::run(argv: $argv));
