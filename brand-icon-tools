@@ -4,10 +4,10 @@ set -euo pipefail
 
 SVG="${1:-}"
 
-OUT="${2:-dist}"
+OUT="out"
 
 if [[ -z "$SVG" ]]; then
-	echo "Usage: $0 logo.svg [output-dir]"
+	echo "Usage: brand-icon-tools logo.svg"
 	exit 1
 fi
 

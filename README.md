@@ -2,7 +2,14 @@
 A script for generating web/PWA brand icon set
 
 Usage:
- - chmod +x generate-set.sh
- - ./generate-set.sh svg_icon_path.svg
+ - sudo ./install.sh
+ - brand-icon-tools svg_icon_path.svg
 
-Notes: The initial SVG icon should be borderless; all icons will be generated with a 90% scale factor and the PWA maskable icon variant with a 65% scale factor
+Update:
+ - sudo ./update.sh
+
+Uninstall:
+ - sudo ./uninstall.sh
+
+Notes:
+The initial SVG icon should be borderless; all icons will be generated with a 90% scale factor and the PWA maskable icon variant with a 65% scale factor
