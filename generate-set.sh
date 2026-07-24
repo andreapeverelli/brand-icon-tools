@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SVG="${1:-}"
+
+OUT="${2:-dist}"
+
+if [[ -z "$SVG" ]]; then
+	echo "Usage: $0 logo.svg [output-dir]"
+	exit 1
+fi
+
+if ! command -v rsvg-convert >/dev/null; then
+	echo "Error: rsvg-convert required"
+	exit 1
+fi
+
+if ! command -v magick >/dev/null; then
+	echo "Error: ImageMagick required"
+	exit 1
+fi
+
+mkdir -p "$OUT"
+
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+
+render_icon() {
+	SIZE="$1"
+	OUTPUT="$2"
+	SCALE="$3"
+
+	INNER=$((SIZE * SCALE / 100))
+
+	rsvg-convert \
+		--keep-aspect-ratio \
+		--width "$INNER" \
+		--height "$INNER" \
+		"$SVG" \
+		> "$TMP/icon.png"
+
+
+	magick "$TMP/icon.png" \
+		-background none \
+		-gravity center \
+		-extent "${SIZE}x${SIZE}" \
+		-alpha on \
+		-depth 8 \
+		-define png:exclude-chunk=all \
+		"$OUT/$OUTPUT"
+}
+
+echo "Generating favicon..."
+
+for SIZE in 16 32 48 64 128 256; do
+	render_icon \
+		"$SIZE" \
+		"favicon-${SIZE}.png" \
+		90
+done
+
+magick \
+	"$OUT/favicon-16.png" \
+	"$OUT/favicon-32.png" \
+	"$OUT/favicon-48.png" \
+	"$OUT/favicon-64.png" \
+	"$OUT/favicon-128.png" \
+	"$OUT/favicon-256.png" \
+	"$OUT/favicon.ico"
+
+rm -f "$OUT"/favicon-{16,32,48,64,128,256}.png
+
+echo "Generating Apple icon..."
+
+render_icon \
+	180 \
+	apple-touch-icon.png \
+	90
+
+echo "Generating PWA icons..."
+
+render_icon \
+	192 \
+	icon-192.png \
+	90
+
+render_icon \
+	512 \
+	icon-512.png \
+	90
+
+render_icon \
+	512 \
+	icon-512-maskable.png \
+	65
+
+echo "Generating OpenGraph image..."
+
+magick \
+	"$OUT/icon-512.png" \
+	-background none \
+	-gravity center \
+	-extent 1200x630 \
+	-alpha on \
+	-depth 8 \
+	-define png:exclude-chunk=all \
+	"$OUT/og-image.png"
+
+echo
+echo "Done"
+
