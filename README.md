@@ -15,7 +15,7 @@ makepkg -si
 ```bash
 # Add Repository to Pacman
 sudo printf '[phx]\nServer = https://andreapeverelli.github.io/phx-repo/\n' | sudo tee -a /etc/pacman.conf > /dev/null
-wget https://andreapeverelli.github.io/phx-repo/key.asc /tmp/phx-repo-key.asc
+wget -O /tmp/phx-repo-key.asc https://andreapeverelli.github.io/phx-repo/key.asc
 sudo pacman-key --add /tmp/phx-repo-key.asc
 
 # Update Repositories and install phx-tools
