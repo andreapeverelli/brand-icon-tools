@@ -18,9 +18,16 @@ sudo pacman -Syy phx-tools
 ```
 
 ## Usage
-phx-tools --help  
+```bash
+phx-tools --help
+```
+```bash
 phx-tools --version
-
-### generate:iconset  
-phx-tools generate:iconset --help  
+```
+### generate:iconset
+```bash
+phx-tools generate:iconset --help
+```
+```bash
 phx-tools generate:iconset --input logo.svg [--out custom/] [--verbose]
+```
