@@ -65,7 +65,7 @@ trait GenerateIconset
 
 		$tmp = sys_get_temp_dir();
 
-		$makeIcon = function(
+		$generatePngIcon = function(
 			int $size,
 			string $name,
 			int $scale,
@@ -110,7 +110,7 @@ trait GenerateIconset
 		$favicon_sizes = [16, 32, 48, 64, 128, 256];
 
 		foreach($favicon_sizes as $favicon_size) {
-			$makeIcon(
+			$generatePngIcon(
 				size: $favicon_size,
 				name: "favicon-$favicon_size",
 				scale: 90,
@@ -119,7 +119,7 @@ trait GenerateIconset
 
 		static::runCommand(
 			command: <<<BASH
-			magick \
+			magick @verbose_argument() \
 				{$out}favicon-16.png \
 				{$out}favicon-32.png \
 				{$out}favicon-48.png \
@@ -129,6 +129,7 @@ trait GenerateIconset
 				{$out}favicon.ico
 			BASH,
 			verbose: $verbose,
+			verbose_argument: "-verbose"
 		);
 
 		unlink("{$out}favicon-16.png");
@@ -139,24 +140,24 @@ trait GenerateIconset
 		unlink("{$out}favicon-256.png");
 
 		echo "Generating Apple Icon...\n";
-		$makeIcon(
+		$generatePngIcon(
 			size: 180,
 			name: "apple-touch-icon",
 			scale: 90,
 		);
 
 		echo "Generating PWA/Android...\n";
-		$makeIcon(
+		$generatePngIcon(
 			size: 192,
 			name: "icon-192",
 			scale: 90,
 		);
-		$makeIcon(
+		$generatePngIcon(
 			size: 512,
 			name: "icon-512",
 			scale: 90,
 		);
-		$makeIcon(
+		$generatePngIcon(
 			size: 512,
 			name: "icon-512-maskable",
 			scale: 65,
@@ -172,9 +173,10 @@ trait GenerateIconset
 				-alpha on \
 				-depth 8 \
 				-define png:exclude-chunk=all \
-				"{$out}og-image.png"
+				@verbose_argument()"{$out}og-image.png"
 			BASH,
 			verbose: $verbose,
+			verbose_argument: "-verbose"
 		);
 
 		echo "\nIconset generated in $out.\n";
