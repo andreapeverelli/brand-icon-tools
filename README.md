@@ -1,15 +1,26 @@
-# brand-icon-tools
-A script for generating web/PWA brand icon set
+# PHX-TOOLS
+Toolset for PHX
 
-Usage:
- - sudo ./install.sh
- - brand-icon-tools svg_icon_path.svg
+## Tools
+    | generate:iconset
+        Generate Web/Socials/PWA/Android/iOS icons from an SVG
 
-Update:
- - sudo ./update.sh
+## Install Source
+```bash
+git clone https://github.com/andreapeverelli/phx-tools.git
+makepkg -si
+```
 
-Uninstall:
- - sudo ./uninstall.sh
+## Install from Repository
+```bash
+sudo printf '[phx]\nServer = https://github.com/andreapeverelli/phx-repo.git\n' | sudo tee -a /etc/pacman.conf > /dev/null
+sudo pacman -Syy phx-tools
+```
 
-Notes:
-The initial SVG icon should be borderless; all icons will be generated with a 90% scale factor and the PWA maskable icon variant with a 65% scale factor
+## Usage
+    phx-tools --help
+    phx-tools --version
+
+    | generate:iconset
+        phx-tools generate:iconset --help
+        phx-tools generate:iconset --input logo.svg [--out custom/] [--verbose]

@@ -4,7 +4,7 @@ namespace AndreaPeverelli\PhxTools;
 
 trait Help
 {
-	final public static function help(): int
+	private static function help(): int
 	{
 		echo <<<OUTPUT
 		WELCOME TO PHX-TOOLS.

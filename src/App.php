@@ -15,13 +15,13 @@ final class App
 	{
 		$command = $argv[1] ?? null;
 
-		if ($command === "--help") {
+		if($command === "--help") {
 			static::help();
 
 			return 0;
 		}
 
-		if ($command === "--version") {
+		if($command === "--version") {
 			echo "PHX-TOOLS v2.0.0\n";
 
 			return 0;
