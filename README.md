@@ -13,7 +13,7 @@ makepkg -si
 
 ## Install from Repository
 ```bash
-sudo printf '[phx]\nServer = https://github.com/andreapeverelli/phx-repo.git\n' | sudo tee -a /etc/pacman.conf > /dev/null
+sudo printf '[phx]\nServer = https://andreapeverelli.github.io/phx-repo/\n' | sudo tee -a /etc/pacman.conf > /dev/null
 sudo pacman -Syy phx-tools
 ```
 
