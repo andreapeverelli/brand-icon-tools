@@ -4,7 +4,7 @@ namespace AndreaPeverelli\PhxTools;
 
 trait GenerateIconset
 {
-	final public static function generateIconset(array $argv): int
+	private static function generateIconset(array $argv): int
 	{
 		if(!isset($argv[2])) {
 			return static::badArguments(tool: "generate:iconset");
@@ -41,9 +41,31 @@ trait GenerateIconset
 			mkdir($out);
 		}
 
+		$verbose = in_array("--verbose", $arguments_kv) ? true : false;
+
+		static::runCommand(
+			command: "magick -version",
+			verbose: $verbose,
+			error_message: <<<OUTPUT
+			PHX-TOOLS Generate Iconset requires imagemagick.
+			
+			Please run 'sudo pacman -S imagemagick' and retry
+			OUTPUT,
+		);
+
+		static::runCommand(
+			command: "rsvg-convert --version",
+			verbose: $verbose,
+			error_message: <<<OUTPUT
+			PHX-TOOLS Generate Iconset requires librsvg.
+			
+			Please run 'sudo pacman -S librsvg' and retry
+			OUTPUT,
+		);
+
 		$tmp = sys_get_temp_dir();
 
-		$make_icon = function(
+		$makeIcon = function(
 			int $size,
 			string $name,
 			int $scale,
@@ -51,52 +73,62 @@ trait GenerateIconset
 			$input,
 			$out,
 			$tmp,
+			$verbose,
 		): void
 		{
 			$inner_size = $size * $scale / 100;
 
-			exec(<<<BASH
-			rsvg-convert \
-				--keep-aspect-ratio \
-				--width "$inner_size" \
-				--height "$inner_size" \
-				"$input" \
-				> "$tmp/icon.png"
-			BASH);
+			static::runCommand(
+				command: <<<BASH
+				rsvg-convert \
+					--keep-aspect-ratio \
+					--width "$inner_size" \
+					--height "$inner_size" \
+					"$input" \
+					> "$tmp/icon.png"
+				BASH,
+				verbose: $verbose,
+			);
 
-			exec(<<<BASH
-			magick "$tmp/icon.png" \
-				-background none \
-				-gravity center \
-				-extent "{$size}x{$size}" \
-				-alpha on \
-				-depth 8 \
-				-define png:exclude-chunk=all \
-				"$out$name.png"
-			BASH);
+			static::runCommand(
+				command: <<<BASH
+				magick "$tmp/icon.png" \
+					-background none \
+					-gravity center \
+					-extent "{$size}x{$size}" \
+					-alpha on \
+					-depth 8 \
+					-define png:exclude-chunk=all \
+					"$out$name.png"
+				BASH,
+				verbose: $verbose,
+			);
 		};
 
 		echo "Generating favicon...\n";
 		$favicon_sizes = [16, 32, 48, 64, 128, 256];
 
 		foreach($favicon_sizes as $favicon_size) {
-			makeIcon(
+			$makeIcon(
 				size: $favicon_size,
 				name: "favicon-$favicon_size",
 				scale: 90,
 			);
 		}
 
-		exec(<<<BASH
-		magick \
-			{$out}favicon-16.png \
-			{$out}favicon-32.png \
-			{$out}favicon-48.png \
-			{$out}favicon-64.png \
-			{$out}favicon-128.png \
-			{$out}favicon-256.png \
-			{$out}favicon.ico
-		BASH);
+		static::runCommand(
+			command: <<<BASH
+			magick \
+				{$out}favicon-16.png \
+				{$out}favicon-32.png \
+				{$out}favicon-48.png \
+				{$out}favicon-64.png \
+				{$out}favicon-128.png \
+				{$out}favicon-256.png \
+				{$out}favicon.ico
+			BASH,
+			verbose: $verbose,
+		);
 
 		unlink("{$out}favicon-16.png");
 		unlink("{$out}favicon-32.png");
@@ -106,40 +138,43 @@ trait GenerateIconset
 		unlink("{$out}favicon-256.png");
 
 		echo "Generating Apple Icon...\n";
-		makeIcon(
+		$makeIcon(
 			size: 180,
 			name: "apple-touch-icon",
 			scale: 90,
 		);
 
 		echo "Generating PWA/Android...\n";
-		makeIcon(
+		$makeIcon(
 			size: 192,
 			name: "icon-192",
 			scale: 90,
 		);
-		makeIcon(
+		$makeIcon(
 			size: 512,
 			name: "icon-512",
 			scale: 90,
 		);
-		makeIcon(
+		$makeIcon(
 			size: 512,
 			name: "icon-512-maskable",
 			scale: 65,
 		);
 
-		echo "Generating OpenGraph...\n"
-		exec(<<<BASH
-		magick "{$out}icon-512.png" \
-			-background none \
-			-gravity center \
-			-extent "1200x630" \
-			-alpha on \
-			-depth 8 \
-			-define png:exclude-chunk=all \
-			"{$out}og-image.png"
-		BASH);
+		echo "Generating OpenGraph...\n";
+		static::runCommand(
+			command: <<<BASH
+			magick "{$out}icon-512.png" \
+				-background none \
+				-gravity center \
+				-extent "1200x630" \
+				-alpha on \
+				-depth 8 \
+				-define png:exclude-chunk=all \
+				"{$out}og-image.png"
+			BASH,
+			verbose: $verbose,
+		);
 
 		echo "\nIconset generated in $out.\n";
 
