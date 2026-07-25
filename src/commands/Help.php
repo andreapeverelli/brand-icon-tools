@@ -16,10 +16,6 @@ trait Help
 		Available flags:
 			| --version
 				Shows PHX-TOOLS version
-			| --update
-				Updates PHX-TOOLS
-			| --uninstall
-				Uninstalls PHX-TOOLS
 			| --help
 				Shows this help message\n
 		OUTPUT;
