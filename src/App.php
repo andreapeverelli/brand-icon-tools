@@ -4,6 +4,8 @@ namespace AndreaPeverelli\PhxTools;
 
 final class App
 {
+	use Utils;
+
 	use Help;
 	use GenerateIconset;
 
@@ -11,21 +13,24 @@ final class App
 
 	final public static function run(array $argv): int
 	{
-		if ($argv === [] || $argv[1] === "--help") {
+		$command = $argv[1] ?? null;
+
+		if ($command === "--help") {
 			static::help();
 
 			return 0;
 		}
 
-		if ($argv[1] === "generate:iconset") {
+		if ($command === "--version") {
+			echo "PHX-TOOLS v2.0.0\n";
+
+			return 0;
+		}
+
+		if ($command === "generate:iconset") {
 			return static::generateIconset(argv: $argv);
 		}
 
-		echo <<<OUTPUT
-		Bad arguments.
-		Try 'phx-tools --help' for command list or 'phx-tools {command} --help' for specific tool help.\n"
-		OUTPUT;
-
-		return 2;
+		return static::badArguments();
 	}
 }
