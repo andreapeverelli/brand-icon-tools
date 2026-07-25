@@ -99,9 +99,10 @@ trait GenerateIconset
 					-alpha on \
 					-depth 8 \
 					-define png:exclude-chunk=all \
-					"$out$name.png"
+					@verbose_argument()"$out$name.png"
 				BASH,
 				verbose: $verbose,
+				verbose_argument: "-verbose",
 			);
 		};
 

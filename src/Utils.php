@@ -46,9 +46,16 @@ trait Utils
 	private static function runCommand(
 		string $command,
 		bool $verbose,
+		?string $verbose_argument = null,
 		?string $error_message = null,
 	): int
 	{
+		if($verbose && $verbose_argument) {
+			$command = str_replace("@verbose_argument()", "$verbose_argument ", $command);
+		} else {
+			$command = str_replace("@verbose_argument()", "", $command);
+		}
+
 		exec("$command 2>&1", $output, $exit_code);
 		$output = implode("\n", $output) . "\n";
 
