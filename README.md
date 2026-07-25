@@ -3,7 +3,7 @@ Toolset for PHX
 
 ## Tools
 ### generate:iconset  
-_Generate Web/Socials/PWA/Android/iOS icons from an SVG_
+Generate Web/Socials/PWA/Android/iOS icons from an SVG
 
 ## Install from Source
 ```bash
@@ -18,9 +18,9 @@ sudo pacman -Syy phx-tools
 ```
 
 ## Usage
-_phx-tools --help_  
-_phx-tools --version_
+phx-tools --help  
+phx-tools --version
 
 ### generate:iconset  
-_phx-tools generate:iconset --help_  
-_phx-tools generate:iconset --input logo.svg [--out custom/] [--verbose]_
+phx-tools generate:iconset --help  
+phx-tools generate:iconset --input logo.svg [--out custom/] [--verbose]
