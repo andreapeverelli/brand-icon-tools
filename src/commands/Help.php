@@ -11,7 +11,7 @@ trait Help
 		
 		Available tools:
 			| generate:iconset
-				Generate Web/Socials/PWA/Android/iOS icons from an SVG
+				Generates favicon/Apple/Android/Microsoft/OpenGraph/Twitter icons from an SVG.
 
 		Available flags:
 			| --version

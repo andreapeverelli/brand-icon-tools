@@ -1,5 +1,5 @@
 pkgname=phx-tools
-pkgver=2.0.0
+pkgver=2.1.0
 pkgrel=1
 pkgdesc="Toolset for PHX"
 arch=('any')
@@ -12,11 +12,13 @@ depends=(
 )
 
 optdepends=(
-	'librsvg: SVG to PNG support'
-	'imagemagick: needed for generating iconset'
+	'librsvg: SVG manipulation support'
+	'imagemagick: raster image manipulation support'
+	'inkscape: monochrome and normalize SVG support'
+	'svgo: SVG optimization support'
 )
 
-#source=("https://github.com/andreapeverelli/phx-tools.git/tree/v$pkgver")
+source=("https://github.com/andreapeverelli/phx-tools.git/tree/v$pkgver")
 
 build() {
 	composer install \

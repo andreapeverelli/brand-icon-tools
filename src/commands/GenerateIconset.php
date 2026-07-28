@@ -2,8 +2,12 @@
 
 namespace AndreaPeverelli\PhxTools;
 
+use AndreaPeverelli\PhxTools\ImageProcessing;
+
 trait GenerateIconset
 {
+	use ImageProcessing;
+
 	private static function generateIconset(array $argv): int
 	{
 		if(!isset($argv[2])) {
@@ -13,6 +17,7 @@ trait GenerateIconset
 		if($argv[2] === "--help") {
 			echo <<<OUTPUT
 			PHX-TOOLS Generate Iconset
+			Generates favicon/Apple/Android/Microsoft/OpenGraph/Twitter icons from an SVG.
 
 			Command structure:
 				phx-tools generate:iconset --input icon.svg [--out custom_path]
@@ -33,8 +38,8 @@ trait GenerateIconset
 			return static::badArguments(tool: "generate:iconset");
 		}
 
-		if(!str_ends_with($out, "/")) {
-			$out .= "/";
+		if(str_ends_with($out, "/")) {
+			$out = substr($out, 0, strlen($out) - 1);
 		}
 
 		if(!is_dir($out)) {
@@ -43,11 +48,35 @@ trait GenerateIconset
 
 		$verbose = in_array("--verbose", $arguments_kv) ? true : false;
 
+		$tmp = sys_get_temp_dir();
+
+		static::checkDependencies(verbose: $verbose);
+
+		static::normalizeInputSvg(tmp: $tmp, input: $input, verbose: $verbose);
+		static::generateMonochromeSvg(tmp: $tmp, verbose: $verbose);
+		static::optimizeIcons(tmp: $tmp, verbose: $verbose);
+
+		static::generateFavicons(out: $out, tmp: $tmp, verbose: $verbose);
+		static::generateAppleIcons(out: $out, tmp: $tmp, verbose: $verbose);
+		static::generateAndroidIcons(out: $out, tmp: $tmp, verbose: $verbose);
+		static::generateMicrosoftIcons(out: $out, tmp: $tmp, verbose: $verbose);
+		static::generateOpenGraphIcon(out: $out, tmp: $tmp, verbose: $verbose);
+		static::generateTwitterIcon(out: $out, tmp: $tmp, verbose: $verbose);
+
+		echo BOLD . GREEN . "####################\n" . RESET ;
+		echo BOLD . "Iconset generated in " . RESET . BOLD . GREEN .  "$out/" . RESET . BOLD . ".\n" . RESET;
+		echo BOLD . GREEN . "####################\n" . RESET;
+
+		return 0;
+	}
+
+	private static function checkDependencies(bool &$verbose): void
+	{
 		static::runCommand(
 			command: "magick -version",
 			verbose: $verbose,
 			error_message: <<<OUTPUT
-			PHX-TOOLS Generate Iconset requires imagemagick.
+			PHX-TOOLS Generate Iconset requires 'imagemagick' for raster manipulation.
 			
 			Please run 'sudo pacman -S imagemagick' and retry
 			OUTPUT,
@@ -57,130 +86,258 @@ trait GenerateIconset
 			command: "rsvg-convert --version",
 			verbose: $verbose,
 			error_message: <<<OUTPUT
-			PHX-TOOLS Generate Iconset requires librsvg.
+			PHX-TOOLS Generate Iconset requires 'librsvg' for SVG manipulation.
 			
 			Please run 'sudo pacman -S librsvg' and retry
 			OUTPUT,
 		);
 
-		$tmp = sys_get_temp_dir();
+		static::runCommand(
+			command: "inkscape --version",
+			verbose: $verbose,
+			error_message: <<<OUTPUT
+			PHX-TOOLS Generate Iconset requires 'inkscape' for generating monochrome SVG.
+			
+			Please run 'sudo pacman -S inkscape' and retry
+			OUTPUT,
+		);
 
-		$generatePngIcon = function(
-			int $size,
-			string $name,
-			int $scale,
-		) use (
-			$input,
-			$out,
-			$tmp,
-			$verbose,
-		): void
-		{
-			$inner_size = $size * $scale / 100;
+		static::runCommand(
+			command: "svgo --version",
+			verbose: $verbose,
+			error_message: <<<OUTPUT
+			PHX-TOOLS Generate Iconset requires 'svgo' for SVG optimization.
+			
+			Please run 'sudo pacman -S svgo' and retry
+			OUTPUT,
+		);
+	}
 
-			static::runCommand(
-				command: <<<BASH
-				rsvg-convert \
-					--keep-aspect-ratio \
-					--width "$inner_size" \
-					--height "$inner_size" \
-					"$input" \
-					> "$tmp/icon.png"
-				BASH,
-				verbose: $verbose,
-			);
+	private static function normalizeInputSvg(string &$tmp, string &$input, bool &$verbose): void
+	{
+		static::normalizeSvg(
+			description: [
+				"Normalizing plain SVG:",
+				"bold" => true,
+				"new_line" => true,
+			],
+			input: $input,
+			output: "$tmp/normalized-icon.svg",
+			verbose: $verbose,
+		);
+	}
 
-			static::runCommand(
-				command: <<<BASH
-				magick "$tmp/icon.png" \
-					-background none \
-					-gravity center \
-					-extent "{$size}x{$size}" \
-					-alpha on \
-					-depth 8 \
-					-define png:exclude-chunk=all \
-					@verbose_argument()"$out$name.png"
-				BASH,
-				verbose: $verbose,
-				verbose_argument: "-verbose",
-			);
-		};
+	private static function generateMonochromeSvg(string &$tmp, bool &$verbose): void
+	{
+		static::svgToMonochromeSvg(
+			description: [
+				"Generating monochrome SVG:",
+				"bold" => true,
+				"new_line" => true,
+			],
+			input: "$tmp/normalized-icon.svg",
+			output: "$tmp/monochrome-icon.svg",
+			verbose: $verbose,
+		);
+	}
 
-		echo "Generating favicon...\n";
+	private static function optimizeIcons(string &$tmp, bool &$verbose): void
+	{
+		echo BOLD . "Optimizing SVGs:\n" . RESET;
+
+		static::optimizeSvgs(
+			descriptions: [
+				" | standard SVG:",
+				[" | monochrome SVG:", "new_line" => true],
+			],
+			inputs: [
+				"$tmp/normalized-icon.svg",
+				"$tmp/monochrome-icon.svg",
+			],
+			outputs: [
+				"$tmp/optimized-icon.svg",
+				"$tmp/optimized-monochrome-icon.svg",
+			],
+			verbose: $verbose,
+		);
+	}
+
+
+	private static function generateFavicons(string &$out, string &$tmp, bool &$verbose): void
+	{
+		echo BOLD . "Generating favicons:\n" . RESET;
 		$favicon_sizes = [16, 32, 48, 64, 128, 256];
 
-		foreach($favicon_sizes as $favicon_size) {
-			$generatePngIcon(
-				size: $favicon_size,
-				name: "favicon-$favicon_size",
-				scale: 90,
-			);
-		}
-
-		static::runCommand(
-			command: <<<BASH
-			magick @verbose_argument() \
-				{$out}favicon-16.png \
-				{$out}favicon-32.png \
-				{$out}favicon-48.png \
-				{$out}favicon-64.png \
-				{$out}favicon-128.png \
-				{$out}favicon-256.png \
-				{$out}favicon.ico
-			BASH,
+		static::svgToCustomPngs(
+			descriptions: [
+				" | favicon-16x16.png",
+				" | favicon-32x32.png",
+				" | favicon-48x48.png",
+				" | favicon-64x64.png",
+				" | favicon-128x128.png",
+				" | favicon-256x256.png",
+			],
+			input: "$tmp/optimized-icon.svg",
+			outputs: [
+				"$out/favicon-16x16.png",
+				"$out/favicon-32x32.png",
+				"$out/favicon-48x48.png",
+				"$out/favicon-64x64.png",
+				"$out/favicon-128x128.png",
+				"$out/favicon-256x256.png",
+			],
+			sizes: [16, 32, 48, 64, 128, 256],
+			scale: 90,
 			verbose: $verbose,
-			verbose_argument: "-verbose"
 		);
 
-		unlink("{$out}favicon-16.png");
-		unlink("{$out}favicon-32.png");
-		unlink("{$out}favicon-48.png");
-		unlink("{$out}favicon-64.png");
-		unlink("{$out}favicon-128.png");
-		unlink("{$out}favicon-256.png");
-
-		echo "Generating Apple Icon...\n";
-		$generatePngIcon(
-			size: 180,
-			name: "apple-touch-icon",
-			scale: 90,
+		static::pngsToIco(
+			description: " | favicon.ico:",
+			inputs: [
+				"$out/favicon-16x16.png",
+				"$out/favicon-32x32.png",
+				"$out/favicon-48x48.png",
+				"$out/favicon-64x64.png",
+				"$out/favicon-128x128.png",
+				"$out/favicon-256x256.png",
+			],
+			output: "$out/favicon.ico",
+			verbose: $verbose,
 		);
 
-		echo "Generating PWA/Android...\n";
-		$generatePngIcon(
-			size: 192,
-			name: "icon-192",
+		echo " | favicon.svg: ";
+		copy("$tmp/optimized-icon.svg", "$out/favicon.svg");
+		echo BOLD . GREEN . "SUCCESS\n\n" . RESET;
+	}
+
+	private static function generateAppleIcons(string &$out, string &$tmp, bool &$verbose): void
+	{
+		echo BOLD . "Generating Apple Icons:\n" . RESET;
+		static::svgToCustomPngs(
+			descriptions: [
+				" | apple-touch-icon-152x152.png",
+				" | apple-touch-icon-167x167.png",
+				" | apple-touch-icon-180x180.png",
+			],
+			input: "$tmp/optimized-icon.svg",
+			outputs: [
+				"$out/apple-touch-icon-152x152.png",
+				"$out/apple-touch-icon-167x167.png",
+				"$out/apple-touch-icon-180x180.png",
+			],
+			sizes: [152, 167, 180],
 			scale: 90,
+			verbose: $verbose,
 		);
-		$generatePngIcon(
-			size: 512,
-			name: "icon-512",
+
+		echo " | apple-touch-icon.png: ";
+		copy("$out/apple-touch-icon-180x180.png", "$out/apple-touch-icon.png");
+		echo BOLD . GREEN . "SUCCESS\n" . RESET;
+
+		echo " | safari-pinned-tab.svg: ";
+		copy("$tmp/optimized-monochrome-icon.svg", "$out/safari-pinned-tab.svg");
+		echo BOLD . GREEN . "SUCCESS\n\n" . RESET;
+	}
+
+	private static function generateAndroidIcons(string &$out, string &$tmp, bool &$verbose): void
+	{
+		echo BOLD . "Generating Android Icons: \n" . RESET;
+		static::svgToCustomPngs(
+			descriptions: [
+				" | android-chrome-192x192.png",
+				" | android-chrome-512x512.png",
+			],
+			input: "$tmp/optimized-icon.svg",
+			outputs: [
+				"$out/android-chrome-192x192.png",
+				"$out/android-chrome-512x512.png",
+			],
+			sizes: [192, 512],
 			scale: 90,
+			verbose: $verbose,
 		);
-		$generatePngIcon(
-			size: 512,
-			name: "icon-512-maskable",
+		static::svgToCustomPngs(
+			descriptions: [
+				" | maskable-icon-192x192.png",
+				" | maskable-icon-512x512.png",
+			],
+			input: "$tmp/optimized-icon.svg",
+			outputs: [
+				"$out/maskable-icon-192x192.png",
+				"$out/maskable-icon-512x512.png",
+			],
+			sizes: [192, 512],
 			scale: 65,
-		);
-
-		echo "Generating OpenGraph...\n";
-		static::runCommand(
-			command: <<<BASH
-			magick "{$out}icon-512.png" \
-				-background none \
-				-gravity center \
-				-extent "1200x630" \
-				-alpha on \
-				-depth 8 \
-				-define png:exclude-chunk=all \
-				@verbose_argument()"{$out}og-image.png"
-			BASH,
 			verbose: $verbose,
-			verbose_argument: "-verbose"
 		);
+		static::svgToCustomPng(
+			description: [" | monochrome-icon-512x512.png", "new_line" => true],
+			input: "$tmp/optimized-monochrome-icon.svg",
+			output: "$out/monochrome-icon-512x512.png",
+			size: 512,
+			scale: 90,
+			verbose: $verbose,
+		);
+	}
 
-		echo "\nIconset generated in $out.\n";
+	private static function generateMicrosoftIcons(string &$out, string &$tmp, bool &$verbose): void
+	{
+		echo BOLD . "Generating Microsoft Icons:\n" . RESET;
+		static::svgToCustomPngs(
+			descriptions: [
+				" | mstile-70x70.png",
+				" | mstile-150x150.png",
+				" | mstile-310x310.png",
+			],
+			input: "$tmp/optimized-icon.svg",
+			outputs: [
+				"$out/mstile-70x70.png",
+				"$out/mstile-150x150.png",
+				"$out/mstile-310x310.png",
+			],
+			sizes: [70, 150, 310],
+			scale: 90,
+			verbose: $verbose,
+		);
+		static::svgToCustomPng(
+			description: [" | mstile-310x150.png", "new_line" => true],
+			input: "$tmp/optimized-icon.svg",
+			output: "$out/mstile-310x150.png",
+			size: [310, 150],
+			scale: 65,
+			verbose: $verbose,
+		);
+	}
 
-		return 0;
+	private static function generateOpenGraphIcon(string &$out, string &$tmp, bool &$verbose): void
+	{
+		static::svgToCustomPng(
+			description: [
+				"Generating OpenGraph:",
+				"bold" => true,
+				"new_line" => true,
+			],
+			input: "$tmp/optimized-icon.svg",
+			output: "$out/og-image.png",
+			size: [1200, 630],
+			scale: 65,
+			verbose: $verbose,
+		);
+	}
+
+	private static function generateTwitterIcon(string &$out, string &$tmp, bool &$verbose): void
+	{
+		static::svgToCustomPng(
+			description: [
+				"Generating Twitter Image:",
+				"bold" => true,
+				"new_line" => true,
+			],
+			input: "$tmp/optimized-icon.svg",
+			output: "$out/twitter-image.png",
+			size: [1200, 600],
+			scale: 65,
+			verbose: $verbose,
+		);
 	}
 }

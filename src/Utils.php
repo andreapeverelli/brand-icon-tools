@@ -46,10 +46,28 @@ trait Utils
 	private static function runCommand(
 		string $command,
 		bool $verbose,
+		null|string|array $description = null,
 		?string $verbose_argument = null,
 		?string $error_message = null,
 	): int
 	{
+		if($description) {
+			if(gettype($description) === "array") {
+				$bold = $description["bold"] ?? false;
+				$new_line = $description["new_line"] ?? false;
+				$description = $description[0];
+			} else {
+				$bold = false;
+				$new_line = false;
+			}
+
+			if($bold) {
+				echo BOLD . "$description " . RESET;
+			} else {
+				echo "$description ";
+			}
+		}
+
 		if($verbose && $verbose_argument) {
 			$command = str_replace("@verbose_argument()", "$verbose_argument ", $command);
 		} else {
@@ -69,6 +87,11 @@ trait Utils
 				$output
 				ERROR);
 			}
+		}
+
+		if($description) {
+			$suffix = $new_line ? "\n\n" : "\n";
+			echo BOLD . GREEN . "SUCCESS$suffix" . RESET;
 		}
 
 		if($verbose) {
