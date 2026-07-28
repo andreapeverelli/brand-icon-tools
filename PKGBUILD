@@ -18,8 +18,6 @@ optdepends=(
 	'svgo: SVG optimization support'
 )
 
-source=("https://github.com/andreapeverelli/phx-tools.git/tree/v$pkgver")
-
 build() {
 	composer install \
 		--working-dir=.. \
