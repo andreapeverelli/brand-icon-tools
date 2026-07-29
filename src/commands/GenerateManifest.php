@@ -4,7 +4,7 @@ namespace AndreaPeverelli\PhxTools;
 
 trait GenerateManifest
 {
-	private static function generateManifest(array $argv): void
+	private static function generateManifest(array $argv): int
 	{
 		if(!isset($argv[2])) {
 			static::badArguments(tool: "generate:manifest");
@@ -15,8 +15,8 @@ trait GenerateManifest
 			PHX-TOOLS Generate Manifest
 
 			Command structure:
-				phx-tools generate:manifest
-OUTPUT;
+				phx-tools generate:manifest [--help]
+			OUTPUT;
 
 			return 0;
 		}
@@ -24,5 +24,9 @@ OUTPUT;
 		$arguments_kv = static::getKeyValue(arguments: array_slice($argv, 2));
 
 		$verbose = in_array("--verbose", $arguments_kv) ? true : false;
+
+		// WIP
+
+		return 0;
 	}
 }

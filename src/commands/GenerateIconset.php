@@ -21,6 +21,7 @@ trait GenerateIconset
 
 			Command structure:
 				phx-tools generate:iconset --input icon.svg [--out custom_path] [--verbose]
+				phx-tools generate:iconset --help
 
 			Notes:
 				The initial SVG icon should be borderless; all icons will be generated with a 90% scale factor and the PWA maskable icon variant with a 65% scale factor.\n

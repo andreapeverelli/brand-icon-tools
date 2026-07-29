@@ -7,6 +7,7 @@ final class App
 	use Utils;
 
 	use Help;
+	use Init;
 	use GenerateIconset;
 	use GenerateManifest;
 
@@ -23,9 +24,13 @@ final class App
 		}
 
 		if($command === "--version") {
-			echo "PHX-TOOLS v2.1.0\n";
+			echo "PHX-TOOLS v2.2.0\n";
 
 			return 0;
+		}
+
+		if($command === "init") {
+			return static::init(argv: $argv);
 		}
 
 		if($command === "generate:iconset") {

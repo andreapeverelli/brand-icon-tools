@@ -1,5 +1,5 @@
 pkgname=phx-tools
-pkgver=2.1.0
+pkgver=2.2.0
 pkgrel=1
 pkgdesc="Toolset for PHX"
 arch=('any')

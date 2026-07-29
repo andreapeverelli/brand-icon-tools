@@ -10,6 +10,8 @@ trait Help
 		WELCOME TO PHX-TOOLS.
 		
 		Available tools:
+			| init
+				It generates a project configuration interactivelly
 			| generate:iconset
 				Generates favicon/Apple/Android/Microsoft/OpenGraph/Twitter icons from an SVG.
 
