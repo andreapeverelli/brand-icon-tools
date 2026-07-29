@@ -8,6 +8,7 @@ final class App
 
 	use Help;
 	use GenerateIconset;
+	use GenerateManifest;
 
 	private function __construct() {}
 
@@ -27,8 +28,12 @@ final class App
 			return 0;
 		}
 
-		if ($command === "generate:iconset") {
+		if($command === "generate:iconset") {
 			return static::generateIconset(argv: $argv);
+		}
+
+		if($comman === "generate:manifest") {
+			return static::generateManifest(argv: $argv);
 		}
 
 		return static::badArguments();
