@@ -12,7 +12,7 @@ trait Init
 			It generates a project configuration interactivelly
 
 			Command structure:
-				phx-tools init [--help]
+				phx-tools init [--help]\n
 			OUTPUT;
 
 			return 0;
