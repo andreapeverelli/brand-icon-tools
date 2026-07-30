@@ -24,7 +24,7 @@ final class App
 		}
 
 		if($command === "--version") {
-			echo "PHX-TOOLS v2.2.0\n";
+			echo "PHX-TOOLS v2.3.0\n";
 
 			return 0;
 		}
