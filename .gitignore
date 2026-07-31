@@ -2,4 +2,4 @@
 /pkg/
 /*.pkg.tar.zst
 /*.pkg.tar.zst.sig
-/extra/palette/baseline-srgb/node_modules/
+/extra/palette/baseline-srgb-palette/node_modules/
