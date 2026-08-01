@@ -2,46 +2,11 @@
 
 namespace AndreaPeverelli\PhxTools;
 
-trait GeneratePalette
+final class GeneratePaletteInternals
 {
-	private static function generatePalette(array $argv): int
-	{
-		if(!isset($argv[2])) {
-			static::badArguments(tool: "generate:palette");
-		}
+	use Utils;
 
-		if(isset($argv[2]) && $argv[2] === "--help") {
-			echo <<<OUTPUT
-			PHX-TOOLS Generate Palette
-			It generates sRGB/Display P3/Rec. 2020 tonal palettes using HCT Material You core palette based on an Hex source color.
-
-			Command structure:
-				phx-tools generate:palette --core-color "#hex_color" [--output output_file] [--verbose]
-				phx-tools generate:palette --help
-			OUTPUT;
-
-			return 0;
-		}
-
-		$arguments_kv = static::getKeyValue(arguments: array_slice($argv, 2));
-
-		$source_color = $arguments_kv["--source-color"] ?? null;
-		if(!$source_color) {
-			static::badArguments(tool: "generate:palette");
-		}
-
-		$output = $arguments_kv["--output"] ?? "palette.json";
-		$verbose = $arguments_kv["--verbose"] ?? false;
-
-		static::checkDependencies(verbose: $verbose);
-		$core_palette = static::generateCorePalette(source_color: $source_color, verbose: $verbose);
-		$tonal_palettes = static::generateTonalPalettes(core_palette: $core_palette, verbose: $verbose);
-		static::writePalette(tonal_palettes: $tonal_palettes, output: $output, verbose: $verbose);
-
-		return 0;
-	}
-
-	private static function checkDependencies(bool &$verbose): void
+	public static function checkDependencies(bool &$verbose): void
 	{
 		static::runCommand(
 			command: "phx-core-palette --version",
@@ -64,7 +29,7 @@ trait GeneratePalette
 		);
 	}
 
-	private static function generateCorePalette(string &$source_color, bool &$verbose): array
+	public static function generateCorePalette(string &$source_color, bool &$verbose): array
 	{
 		return json_decode(static::runCommand(
 			description: ["Generating core palette:", "bold" => true, "new_line" => true],
@@ -76,7 +41,7 @@ trait GeneratePalette
 		), true);
 	}
 
-	private static function generateTonalPalettes(array $core_palette, bool &$verbose): array
+	public static function generateTonalPalettes(array $core_palette, bool &$verbose): array
 	{
 		echo BOLD . "Generating sRGB/Display P3/Rec. 2020 tonal palettes:\n" . RESET;
 
@@ -271,7 +236,7 @@ trait GeneratePalette
 		return $palette;
 	}
 
-	private static function writePalette(array &$tonal_palettes, string &$output, bool &$verbose): void
+	public static function writePalette(array &$tonal_palettes, string &$output, bool &$verbose): void
 	{
 		if(file_exists($output)) {
 			unlink($output);
@@ -280,7 +245,7 @@ trait GeneratePalette
 		file_put_contents($output, json_encode($tonal_palettes));
 
 		echo BOLD . GREEN . "####################\n" . RESET;
-		echo BOLD . "Palette generated in " . GREEN . "$output/" . RESET . BOLD . ".\n" . RESET;
+		echo BOLD . "Palette generated in " . GREEN . $output . RESET . BOLD . ".\n" . RESET;
 		echo BOLD . GREEN . "####################\n" . RESET;
 	}
 }

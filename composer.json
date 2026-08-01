@@ -1,22 +1,26 @@
 {
-    "name": "andreapeverelli/phx-tools",
-    "description": "Toolset for PHX",
-    "type": "project",
-    "license": "GPL-3.0",
-    "autoload": {
-        "psr-4": {
-            "AndreaPeverelli\\PhxTools\\": [
-		    "src/",
-		    "src/commands/"
-	    ]
-        }
-    },
-    "authors": [
-        {
-            "name": "Andrea Peverelli",
-            "email": "ndrpeverelli@gmail.com"
-        }
-    ],
-    "minimum-stability": "dev",
-    "require": {}
+	"name": "andreapeverelli/phx-tools",
+	"description": "Toolset for PHX",
+	"version": "2.3.0",
+	"type": "project",
+	"license": "GPL-3.0",
+	"autoload": {
+		"psr-4": {
+			"AndreaPeverelli\\PhxTools\\": [
+				"src/",
+				"src/commands/",
+				"src/commands/generate_iconset/",
+				"src/commands/generate_manifest/",
+				"src/commands/generate_palette/"
+			]
+		}
+	},
+	"authors": [
+		{
+			"name": "Andrea Peverelli",
+			"email": "ndrpeverelli@gmail.com"
+		}
+	],
+	"minimum-stability": "dev",
+	"require": {}
 }
