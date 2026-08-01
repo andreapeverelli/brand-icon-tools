@@ -1,5 +1,5 @@
 pkgname=phx-tools
-pkgver=2.2.0
+pkgver=2.3.0
 pkgrel=1
 pkgdesc="Toolset for PHX"
 arch=('any')
@@ -16,6 +16,8 @@ optdepends=(
 	'imagemagick: raster image manipulation support'
 	'inkscape: monochrome and normalize SVG support'
 	'svgo: SVG optimization support'
+	'phx-core-palette: Material You palette generation support'
+	'phx-tonal-palette: Material You palette generation support'
 )
 
 build() {

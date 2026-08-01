@@ -9,6 +9,7 @@ final class App
 	use Help;
 	use Init;
 	use GenerateIconset;
+	use GeneratePalette;
 	use GenerateManifest;
 
 	private function __construct() {}
@@ -24,7 +25,7 @@ final class App
 		}
 
 		if($command === "--version") {
-			echo "PHX-TOOLS v2.2.0\n";
+			echo "PHX-TOOLS v2.3.0\n";
 
 			return 0;
 		}
@@ -37,7 +38,11 @@ final class App
 			return static::generateIconset(argv: $argv);
 		}
 
-		if($comman === "generate:manifest") {
+		if($command === "generate:palette") {
+			return static::generatePalette(argv: $argv);
+		}
+
+		if($command === "generate:manifest") {
 			return static::generateManifest(argv: $argv);
 		}
 

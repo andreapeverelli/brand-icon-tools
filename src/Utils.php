@@ -46,10 +46,11 @@ trait Utils
 	private static function runCommand(
 		string $command,
 		bool $verbose,
+		bool $get_output = false,
 		null|string|array $description = null,
 		?string $verbose_argument = null,
 		?string $error_message = null,
-	): int
+	): int|string
 	{
 		if($description) {
 			if(gettype($description) === "array") {
@@ -98,6 +99,10 @@ trait Utils
 			echo $output;
 		}
 
-		return 0;
+		if($get_output) {
+			return $output;
+		} else {
+			return 0;
+		}
 	}
 }

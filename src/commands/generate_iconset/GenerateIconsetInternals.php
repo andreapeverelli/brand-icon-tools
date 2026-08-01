@@ -2,76 +2,12 @@
 
 namespace AndreaPeverelli\PhxTools;
 
-use AndreaPeverelli\PhxTools\ImageProcessing;
-
-trait GenerateIconset
+final class GenerateIconsetInternals
 {
+	use Utils;
 	use ImageProcessing;
 
-	private static function generateIconset(array $argv): int
-	{
-		if(!isset($argv[2])) {
-			return static::badArguments(tool: "generate:iconset");
-		}
-
-		if($argv[2] === "--help") {
-			echo <<<OUTPUT
-			PHX-TOOLS Generate Iconset
-			Generates favicon/Apple/Android/Microsoft/OpenGraph/Twitter icons from an SVG.
-
-			Command structure:
-				phx-tools generate:iconset --input icon.svg [--out custom_path] [--verbose]
-				phx-tools generate:iconset --help
-
-			Notes:
-				The initial SVG icon should be borderless; all icons will be generated with a 90% scale factor and the PWA maskable icon variant with a 65% scale factor.\n
-			OUTPUT;
-
-			return 0;
-		}
-
-		$arguments_kv = static::getKeyValue(arguments: array_slice($argv, 2));
-
-		$out = $arguments_kv["--out"] ?? "out/";
-		$input = $arguments_kv["--input"] ?? null;
-
-		if(!$input) {
-			return static::badArguments(tool: "generate:iconset");
-		}
-
-		if(str_ends_with($out, "/")) {
-			$out = substr($out, 0, strlen($out) - 1);
-		}
-
-		if(!is_dir($out)) {
-			mkdir($out);
-		}
-
-		$verbose = in_array("--verbose", $arguments_kv) ? true : false;
-
-		$tmp = sys_get_temp_dir();
-
-		static::checkDependencies(verbose: $verbose);
-
-		static::normalizeInputSvg(tmp: $tmp, input: $input, verbose: $verbose);
-		static::generateMonochromeSvg(tmp: $tmp, verbose: $verbose);
-		static::optimizeIcons(tmp: $tmp, verbose: $verbose);
-
-		static::generateFavicons(out: $out, tmp: $tmp, verbose: $verbose);
-		static::generateAppleIcons(out: $out, tmp: $tmp, verbose: $verbose);
-		static::generateAndroidIcons(out: $out, tmp: $tmp, verbose: $verbose);
-		static::generateMicrosoftIcons(out: $out, tmp: $tmp, verbose: $verbose);
-		static::generateOpenGraphIcon(out: $out, tmp: $tmp, verbose: $verbose);
-		static::generateTwitterIcon(out: $out, tmp: $tmp, verbose: $verbose);
-
-		echo BOLD . GREEN . "####################\n" . RESET ;
-		echo BOLD . "Iconset generated in " . RESET . BOLD . GREEN .  "$out/" . RESET . BOLD . ".\n" . RESET;
-		echo BOLD . GREEN . "####################\n" . RESET;
-
-		return 0;
-	}
-
-	private static function checkDependencies(bool &$verbose): void
+	public static function checkDependencies(bool &$verbose): void
 	{
 		static::runCommand(
 			command: "magick -version",
@@ -114,7 +50,7 @@ trait GenerateIconset
 		);
 	}
 
-	private static function normalizeInputSvg(string &$tmp, string &$input, bool &$verbose): void
+	public static function normalizeInputSvg(string &$tmp, string &$input, bool &$verbose): void
 	{
 		static::normalizeSvg(
 			description: [
@@ -128,7 +64,7 @@ trait GenerateIconset
 		);
 	}
 
-	private static function generateMonochromeSvg(string &$tmp, bool &$verbose): void
+	public static function generateMonochromeSvg(string &$tmp, bool &$verbose): void
 	{
 		static::svgToMonochromeSvg(
 			description: [
@@ -142,7 +78,7 @@ trait GenerateIconset
 		);
 	}
 
-	private static function optimizeIcons(string &$tmp, bool &$verbose): void
+	public static function optimizeIcons(string &$tmp, bool &$verbose): void
 	{
 		echo BOLD . "Optimizing SVGs:\n" . RESET;
 
@@ -163,8 +99,7 @@ trait GenerateIconset
 		);
 	}
 
-
-	private static function generateFavicons(string &$out, string &$tmp, bool &$verbose): void
+	public static function generateFavicons(string &$out, string &$tmp, bool &$verbose): void
 	{
 		echo BOLD . "Generating favicons:\n" . RESET;
 		$favicon_sizes = [16, 32, 48, 64, 128, 256];
@@ -211,7 +146,7 @@ trait GenerateIconset
 		echo BOLD . GREEN . "SUCCESS\n\n" . RESET;
 	}
 
-	private static function generateAppleIcons(string &$out, string &$tmp, bool &$verbose): void
+	public static function generateAppleIcons(string &$out, string &$tmp, bool &$verbose): void
 	{
 		echo BOLD . "Generating Apple Icons:\n" . RESET;
 		static::svgToCustomPngs(
@@ -240,7 +175,7 @@ trait GenerateIconset
 		echo BOLD . GREEN . "SUCCESS\n\n" . RESET;
 	}
 
-	private static function generateAndroidIcons(string &$out, string &$tmp, bool &$verbose): void
+	public static function generateAndroidIcons(string &$out, string &$tmp, bool &$verbose): void
 	{
 		echo BOLD . "Generating Android Icons: \n" . RESET;
 		static::svgToCustomPngs(
@@ -281,7 +216,7 @@ trait GenerateIconset
 		);
 	}
 
-	private static function generateMicrosoftIcons(string &$out, string &$tmp, bool &$verbose): void
+	public static function generateMicrosoftIcons(string &$out, string &$tmp, bool &$verbose): void
 	{
 		echo BOLD . "Generating Microsoft Icons:\n" . RESET;
 		static::svgToCustomPngs(
@@ -310,7 +245,7 @@ trait GenerateIconset
 		);
 	}
 
-	private static function generateOpenGraphIcon(string &$out, string &$tmp, bool &$verbose): void
+	public static function generateOpenGraphIcon(string &$out, string &$tmp, bool &$verbose): void
 	{
 		static::svgToCustomPng(
 			description: [
@@ -326,7 +261,7 @@ trait GenerateIconset
 		);
 	}
 
-	private static function generateTwitterIcon(string &$out, string &$tmp, bool &$verbose): void
+	public static function generateTwitterIcon(string &$out, string &$tmp, bool &$verbose): void
 	{
 		static::svgToCustomPng(
 			description: [
