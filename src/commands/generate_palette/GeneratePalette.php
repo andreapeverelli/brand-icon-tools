@@ -13,7 +13,7 @@ trait GeneratePalette
 		if(isset($argv[2]) && $argv[2] === "--help") {
 			echo <<<OUTPUT
 			PHX-TOOLS Generate Palette
-			It generates sRGB/Display P3/Rec. 2020 tonal palettes using HCT Material You core palette based on an Hex source color.
+			Generates sRGB/Display P3/Rec. 2020 tonal palettes using HCT Material You core palette based on an Hex source color.
 
 			Command structure:
 				phx-tools generate:palette --source-color "#hex_color" [--output output_file] [--verbose]

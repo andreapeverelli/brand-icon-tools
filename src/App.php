@@ -10,7 +10,7 @@ final class App
 	use Init;
 	use GenerateIconset;
 	use GeneratePalette;
-	use GenerateManifest;
+	use GenerateMetadataFiles;
 
 	private function __construct() {}
 
@@ -25,7 +25,7 @@ final class App
 		}
 
 		if($command === "--version") {
-			echo "PHX-TOOLS v2.3.0\n";
+			echo "PHX-TOOLS v2.4.0\n";
 
 			return 0;
 		}
@@ -42,8 +42,8 @@ final class App
 			return static::generatePalette(argv: $argv);
 		}
 
-		if($command === "generate:manifest") {
-			return static::generateManifest(argv: $argv);
+		if($command === "generate:metadata-files") {
+			return static::generateMetadataFiles(argv: $argv);
 		}
 
 		return static::badArguments();

@@ -30,10 +30,3 @@ phx-tools --help
 ```bash
 phx-tools --version
 ```
-### generate:iconset
-```bash
-phx-tools generate:iconset --help
-```
-```bash
-phx-tools generate:iconset --input logo.svg [--out custom/] [--verbose]
-```

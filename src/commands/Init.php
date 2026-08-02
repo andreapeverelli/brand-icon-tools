@@ -9,7 +9,7 @@ trait Init
 		if(isset($argv[2]) && $argv[2] === "--help") {
 			echo <<<OUTPUT
 			PHX-TOOLS Init
-			It generates a project configuration interactivelly
+			Generates a project configuration interactivelly
 
 			Command structure:
 				phx-tools init [--help]\n

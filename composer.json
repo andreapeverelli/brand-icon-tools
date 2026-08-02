@@ -1,7 +1,7 @@
 {
 	"name": "andreapeverelli/phx-tools",
 	"description": "Toolset for PHX",
-	"version": "2.3.0",
+	"version": "2.4.0",
 	"type": "project",
 	"license": "GPL-3.0",
 	"autoload": {
@@ -10,8 +10,8 @@
 				"src/",
 				"src/commands/",
 				"src/commands/generate_iconset/",
-				"src/commands/generate_manifest/",
-				"src/commands/generate_palette/"
+				"src/commands/generate_palette/",
+				"src/commands/generate_metadata_files/"
 			]
 		}
 	},
