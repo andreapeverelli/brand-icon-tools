@@ -4,7 +4,7 @@ namespace AndreaPeverelli\PhxTools;
 
 trait GenerateMetadataFiles
 {
-	private static function generateMetadataFiles(array $argv): int
+	private static function generateMetadataFiles(array &$argv): int
 	{
 		if(isset($argv[2]) && $argv[2] === "--help") {
 			echo <<<OUTPUT

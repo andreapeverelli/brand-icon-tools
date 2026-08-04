@@ -1,5 +1,5 @@
 pkgname=phx-tools
-pkgver=2.4.0
+pkgver=2.5.0
 pkgrel=1
 pkgdesc="Toolset for PHX"
 arch=('any')
@@ -18,6 +18,7 @@ optdepends=(
 	'svgo: SVG optimization support'
 	'phx-core-palette: Material You palette generation support'
 	'phx-tonal-palette: Material You palette generation support'
+	'phx-font-metrics: Material You typescale generation support'
 )
 
 build() {

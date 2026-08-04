@@ -4,7 +4,7 @@ namespace AndreaPeverelli\PhxTools;
 
 trait GenerateIconset
 {
-	private static function generateIconset(array $argv): int
+	private static function generateIconset(array &$argv): int
 	{
 		if(!isset($argv[2])) {
 			return static::badArguments(tool: "generate:iconset");

@@ -4,7 +4,7 @@ namespace AndreaPeverelli\PhxTools;
 
 final class GenerateMetadataFilesInternals
 {
-	public static function generateManifest(
+	final public static function generateManifest(
 		array &$phx_config,
 		array &$palette,
 		string &$icons_uri,
@@ -123,7 +123,7 @@ final class GenerateMetadataFilesInternals
 		echo BOLD . GREEN . "SUCCESS\n" . RESET;
 	}
 
-	public static function generateBrowserconfig(
+	final public static function generateBrowserconfig(
 		array &$phx_config,
 		array &$palette,
 		string &$icons_uri,
@@ -157,7 +157,7 @@ final class GenerateMetadataFilesInternals
 		echo BOLD . GREEN . "SUCCESS\n" . RESET;
 	}
 
-	public static function generateRobots(array &$phx_config, string &$output): void
+	final public static function generateRobots(array &$phx_config, string &$output): void
 	{
 		echo BOLD . " | robots.txt: " . RESET;
 
@@ -180,7 +180,7 @@ final class GenerateMetadataFilesInternals
 		echo BOLD . GREEN . "SUCCESS\n" . RESET;
 	}
 
-	public static function generateSecurity(array &$phx_config, string &$output): void
+	final public static function generateSecurity(array &$phx_config, string &$output): void
 	{
 		echo BOLD . " | security.txt and .well-known/security.txt: " . RESET;
 
@@ -216,7 +216,7 @@ final class GenerateMetadataFilesInternals
 		echo BOLD . GREEN . "SUCCESS\n" . RESET;
 	}
 
-	public static function generateHumans(array &$phx_config, string &$output): void
+	final public static function generateHumans(array &$phx_config, string &$output): void
 	{
 		echo BOLD . " | humans.txt: " . RESET;
 

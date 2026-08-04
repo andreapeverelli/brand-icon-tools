@@ -7,7 +7,7 @@ final class GenerateIconsetInternals
 	use Utils;
 	use ImageProcessing;
 
-	public static function checkDependencies(bool &$verbose): void
+	final public static function checkDependencies(bool &$verbose): void
 	{
 		static::runCommand(
 			command: "magick -version",
@@ -50,7 +50,7 @@ final class GenerateIconsetInternals
 		);
 	}
 
-	public static function normalizeInputSvg(string &$tmp, string &$input, bool &$verbose): void
+	final public static function normalizeInputSvg(string &$tmp, string &$input, bool &$verbose): void
 	{
 		static::normalizeSvg(
 			description: [
@@ -64,7 +64,7 @@ final class GenerateIconsetInternals
 		);
 	}
 
-	public static function generateMonochromeSvg(string &$tmp, bool &$verbose): void
+	final public static function generateMonochromeSvg(string &$tmp, bool &$verbose): void
 	{
 		static::svgToMonochromeSvg(
 			description: [
@@ -78,7 +78,7 @@ final class GenerateIconsetInternals
 		);
 	}
 
-	public static function optimizeIcons(string &$tmp, bool &$verbose): void
+	final public static function optimizeIcons(string &$tmp, bool &$verbose): void
 	{
 		echo BOLD . "Optimizing SVGs:\n" . RESET;
 
@@ -99,7 +99,7 @@ final class GenerateIconsetInternals
 		);
 	}
 
-	public static function generateFavicons(string &$out, string &$tmp, bool &$verbose): void
+	final public static function generateFavicons(string &$out, string &$tmp, bool &$verbose): void
 	{
 		echo BOLD . "Generating favicons:\n" . RESET;
 		$favicon_sizes = [16, 32, 48, 64, 128, 256];
@@ -146,7 +146,7 @@ final class GenerateIconsetInternals
 		echo BOLD . GREEN . "SUCCESS\n\n" . RESET;
 	}
 
-	public static function generateAppleIcons(string &$out, string &$tmp, bool &$verbose): void
+	final public static function generateAppleIcons(string &$out, string &$tmp, bool &$verbose): void
 	{
 		echo BOLD . "Generating Apple Icons:\n" . RESET;
 		static::svgToCustomPngs(
@@ -175,7 +175,7 @@ final class GenerateIconsetInternals
 		echo BOLD . GREEN . "SUCCESS\n\n" . RESET;
 	}
 
-	public static function generateAndroidIcons(string &$out, string &$tmp, bool &$verbose): void
+	final public static function generateAndroidIcons(string &$out, string &$tmp, bool &$verbose): void
 	{
 		echo BOLD . "Generating Android Icons: \n" . RESET;
 		static::svgToCustomPngs(
@@ -216,7 +216,7 @@ final class GenerateIconsetInternals
 		);
 	}
 
-	public static function generateMicrosoftIcons(string &$out, string &$tmp, bool &$verbose): void
+	final public static function generateMicrosoftIcons(string &$out, string &$tmp, bool &$verbose): void
 	{
 		echo BOLD . "Generating Microsoft Icons:\n" . RESET;
 		static::svgToCustomPngs(
@@ -245,7 +245,7 @@ final class GenerateIconsetInternals
 		);
 	}
 
-	public static function generateOpenGraphIcon(string &$out, string &$tmp, bool &$verbose): void
+	final public static function generateOpenGraphIcon(string &$out, string &$tmp, bool &$verbose): void
 	{
 		static::svgToCustomPng(
 			description: [
@@ -261,7 +261,7 @@ final class GenerateIconsetInternals
 		);
 	}
 
-	public static function generateTwitterIcon(string &$out, string &$tmp, bool &$verbose): void
+	final public static function generateTwitterIcon(string &$out, string &$tmp, bool &$verbose): void
 	{
 		static::svgToCustomPng(
 			description: [

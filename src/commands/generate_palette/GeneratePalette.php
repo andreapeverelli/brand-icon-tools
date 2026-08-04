@@ -4,10 +4,10 @@ namespace AndreaPeverelli\PhxTools;
 
 trait GeneratePalette
 {
-	private static function generatePalette(array $argv): int
+	private static function generatePalette(array &$argv): int
 	{
 		if(!isset($argv[2])) {
-			static::badArguments(tool: "generate:palette");
+			return static::badArguments(tool: "generate:palette");
 		}
 
 		if(isset($argv[2]) && $argv[2] === "--help") {
@@ -27,7 +27,7 @@ trait GeneratePalette
 
 		$source_color = $arguments_kv["--source-color"] ?? null;
 		if(!$source_color) {
-			static::badArguments(tool: "generate:palette");
+			return static::badArguments(tool: "generate:palette");
 		}
 
 		$output = $arguments_kv["--output"] ?? "palette.json";

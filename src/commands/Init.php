@@ -4,7 +4,7 @@ namespace AndreaPeverelli\PhxTools;
 
 trait Init
 {
-	private static function init(array $argv): int
+	private static function init(array &$argv): int
 	{
 		if(isset($argv[2]) && $argv[2] === "--help") {
 			echo <<<OUTPUT

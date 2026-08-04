@@ -6,7 +6,7 @@ final class GeneratePaletteInternals
 {
 	use Utils;
 
-	public static function checkDependencies(bool &$verbose): void
+	final public static function checkDependencies(bool &$verbose): void
 	{
 		static::runCommand(
 			command: "phx-core-palette --version",
@@ -29,7 +29,7 @@ final class GeneratePaletteInternals
 		);
 	}
 
-	public static function generateCorePalette(string &$source_color, bool &$verbose): array
+	final public static function generateCorePalette(string &$source_color, bool &$verbose): array
 	{
 		return json_decode(static::runCommand(
 			description: ["Generating core palette:", "bold" => true, "new_line" => true],
@@ -41,7 +41,7 @@ final class GeneratePaletteInternals
 		), true);
 	}
 
-	public static function generateTonalPalettes(array $core_palette, bool &$verbose): array
+	final public static function generateTonalPalettes(array $core_palette, bool &$verbose): array
 	{
 		echo BOLD . "Generating sRGB/Display P3/Rec. 2020 tonal palettes:\n" . RESET;
 
@@ -236,7 +236,7 @@ final class GeneratePaletteInternals
 		return $palette;
 	}
 
-	public static function writePalette(array &$tonal_palettes, string &$output, bool &$verbose): void
+	final public static function writePalette(array &$tonal_palettes, string &$output, bool &$verbose): void
 	{
 		if(file_exists($output)) {
 			unlink($output);

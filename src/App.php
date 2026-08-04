@@ -11,6 +11,7 @@ final class App
 	use GenerateIconset;
 	use GeneratePalette;
 	use GenerateMetadataFiles;
+	use GenerateTypescale;
 
 	private function __construct() {}
 
@@ -25,7 +26,7 @@ final class App
 		}
 
 		if($command === "--version") {
-			echo "PHX-TOOLS v2.4.0\n";
+			echo "PHX-TOOLS v2.5.0\n";
 
 			return 0;
 		}
@@ -44,6 +45,10 @@ final class App
 
 		if($command === "generate:metadata-files") {
 			return static::generateMetadataFiles(argv: $argv);
+		}
+
+		if($command === "generate:typescale") {
+			return static::generateTypescale(argv: $argv);
 		}
 
 		return static::badArguments();
