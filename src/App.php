@@ -1,6 +1,6 @@
 <?php
 
-namespace AndreaPeverelli\PhxTools;
+namespace AndreaPeverelli\PhxCli;
 
 final class App
 {
@@ -8,6 +8,9 @@ final class App
 
 	use Help;
 	use Init;
+	use RegisterProject;
+	use Setup;
+	use GenerateConfig;
 	use GenerateIconset;
 	use GeneratePalette;
 	use GenerateMetadataFiles;
@@ -26,13 +29,25 @@ final class App
 		}
 
 		if($command === "--version") {
-			echo "PHX-TOOLS v2.5.0\n";
+			echo "PHX-CLI v3.0.0\n";
 
 			return 0;
 		}
 
 		if($command === "init") {
 			return static::init(argv: $argv);
+		}
+
+		if($command === "register:project") {
+			return static::registerProject(argv: $argv);
+		}
+
+		if($command === "setup") {
+			return static::setup($argv);
+		}
+
+		if($command === "generate:config") {
+			return static::generateConfig(argv: $argv);
 		}
 
 		if($command === "generate:iconset") {

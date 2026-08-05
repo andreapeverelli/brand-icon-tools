@@ -1,18 +1,18 @@
 <?php
 
-namespace AndreaPeverelli\PhxTools;
+namespace AndreaPeverelli\PhxCli;
 
-trait Init
+trait GenerateConfig
 {
-	private static function init(array &$argv): int
+	private static function generateConfig(array &$argv): int
 	{
 		if(isset($argv[2]) && $argv[2] === "--help") {
 			echo <<<OUTPUT
-			PHX-TOOLS Init
+			PHX-CLI Init
 			Generates a project configuration interactivelly
 
 			Command structure:
-				phx-tools init [--help]\n
+				phx init [--help]\n
 			OUTPUT;
 
 			return 0;
@@ -27,8 +27,18 @@ trait Init
 		} while($config["app_short_name"] === "");
 
 		do {
+			$config["vendor"] = trim(readline("Vendor: "));
+		} while($config["vendor"] === "");
+
+		do {
 			$config["description"] = trim(readline("Description: "));
 		} while($config["description"] === "");
+
+		do {
+			$config["license"] = trim(readline("License: "));
+		} while($config["license"] === "");
+
+		$config["homepage"] = trim(readline("Homepage (optional): "));
 
 		do {
 			$config["languages"] = trim(readline("Languages (separated by ,): "));
@@ -58,9 +68,9 @@ trait Init
 		}
 		file_put_contents("phx.config.json", json_encode($config));
 
-		echo BOLD . GREEN . "\n#######################\n" . RESET;
-		echo BOLD . "PHX configuration done.\n" . RESET;
-		echo BOLD . GREEN . "#######################\n" . RESET;
+		echo BOLD . GREEN . "\n##############################\n" . RESET;
+		echo BOLD . "PHX configuration generated in " . GREEN . "phx.config.json" . RESET . BOLD . ".\n" . RESET;
+		echo BOLD . GREEN . "##############################\n" . RESET;
 
 		return 0;
 	}

@@ -1,14 +1,18 @@
 {
-	"name": "andreapeverelli/phx-tools",
-	"description": "Toolset for PHX",
-	"version": "2.5.0",
+	"name": "andreapeverelli/phx-cli",
+	"description": "CLI companion for PHX framework",
+	"version": "3.0.0",
 	"type": "project",
 	"license": "GPL-3.0",
 	"autoload": {
 		"psr-4": {
-			"AndreaPeverelli\\PhxTools\\": [
+			"AndreaPeverelli\\PhxCli\\": [
 				"src/",
 				"src/commands/",
+				"src/commands/init/",
+				"src/commands/register_project/",
+				"src/commands/setup/",
+				"src/commands/generate_config/",
 				"src/commands/generate_iconset/",
 				"src/commands/generate_palette/",
 				"src/commands/generate_metadata_files/",

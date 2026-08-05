@@ -1,5 +1,5 @@
-# PHX-TOOLS
-Toolset for PHX
+# PHX-CLI
+CLI companion for PHX framework
 
 ## Tools
 ### init
@@ -12,10 +12,11 @@ Generates sRGB/Display P3/Rec. 2020 tonal palettes using HCT Material You core p
 Generates manifest/browserconfig/robots/security/humans metadata files based on configurations
 ### generate:typescale
 Generate Material You based typescale
+### generate:
 
 ## Install from Source
 ```bash
-git clone https://github.com/andreapeverelli/phx-tools.git
+git clone https://github.com/andreapeverelli/phx-cli.git
 makepkg -si
 ```
 
@@ -27,14 +28,11 @@ wget -O /tmp/phx-repo-key.asc https://andreapeverelli.github.io/phx-repo/key.asc
 sudo pacman-key --add /tmp/phx-repo-key.asc
 sudo pacman-key --lsign-key CAF1FE155FED7B2F6E05EC6BD88ABED0A94852EC
 
-# Update Repositories and install phx-tools
-sudo pacman -Syy phx-tools
+# Update Repositories and install phx-cli
+sudo pacman -Syy phx-cli
 ```
 
 ## Usage
 ```bash
-phx-tools --help
-```
-```bash
-phx-tools --version
+phx --help
 ```

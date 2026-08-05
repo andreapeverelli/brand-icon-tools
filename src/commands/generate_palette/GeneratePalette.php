@@ -1,23 +1,19 @@
 <?php
 
-namespace AndreaPeverelli\PhxTools;
+namespace AndreaPeverelli\PhxCli;
 
 trait GeneratePalette
 {
 	private static function generatePalette(array &$argv): int
 	{
-		if(!isset($argv[2])) {
-			return static::badArguments(tool: "generate:palette");
-		}
-
 		if(isset($argv[2]) && $argv[2] === "--help") {
 			echo <<<OUTPUT
-			PHX-TOOLS Generate Palette
+			PHX-CLI Generate Palette
 			Generates sRGB/Display P3/Rec. 2020 tonal palettes using HCT Material You core palette based on an Hex source color.
 
 			Command structure:
-				phx-tools generate:palette --source-color "#hex_color" [--output output_file] [--verbose]
-				phx-tools generate:palette --help\n
+				phx generate:palette --source-color "#hex_color" [--output output_file] [--verbose]
+				phx generate:palette --help\n
 			OUTPUT;
 
 			return 0;
@@ -25,9 +21,11 @@ trait GeneratePalette
 
 		$arguments_kv = static::getKeyValue(arguments: array_slice($argv, 2));
 
-		$source_color = $arguments_kv["--source-color"] ?? null;
-		if(!$source_color) {
-			return static::badArguments(tool: "generate:palette");
+		$source_color = $arguments_kv["--source-color"] ?? "";
+		if($source_color === "") {
+			do {
+				$source_color = trim(readline("Source color (#hhhhhh): "));
+			} while($source_color === "");
 		}
 
 		$output = $arguments_kv["--output"] ?? "palette.json";

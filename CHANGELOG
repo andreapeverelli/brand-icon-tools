@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog,
 and this project adheres to Semantic Versioning.
 
+## [3.0.0] 2026-08-05
+
+### Added
+ - generate:config tool (ex generate:init which now run all project setup)
+ - autodetect the current project root
+ - generate:init tool
+ - register:project tool
+ - setup tool
+
+### Updated
+ - phx-tools => phx-cli
+ - dependencies
+ - generate:config non-interactive mode
+ - all tools interactive mode
+
+### Removed
+ - example assets
+
 ## [2.5.0] 2026-08-04
 
 ### Added

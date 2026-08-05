@@ -1,6 +1,6 @@
 <?php
 
-namespace AndreaPeverelli\PhxTools;
+namespace AndreaPeverelli\PhxCli;
 
 trait GenerateMetadataFiles
 {
@@ -8,12 +8,12 @@ trait GenerateMetadataFiles
 	{
 		if(isset($argv[2]) && $argv[2] === "--help") {
 			echo <<<OUTPUT
-			PHX-TOOLS Generate Metadata Files
-				Generates manifest/browserconfig/robots/security/humans metadata files based on configurations
+			PHX-CLI Generate Metadata Files
+				Generates manifest/browserconfig/robots/security/humans metadata files based on configurations.
 
 			Command structure:
-				phx-tools generate:metadata-files [--phx-config phx_config_file] [--palette palette_file] [--icons-uri icons_uri] [--output output_dir]
-				phx-tools generate:metadata-files --help\n
+				phx generate:metadata-files [--phx-config phx_config_file] [--palette palette_file] [--icons-uri icons_uri] [--output output_dir]
+				phx generate:metadata-files --help\n
 			OUTPUT;
 
 			return 0;

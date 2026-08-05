@@ -1,15 +1,37 @@
 <?php
 
-namespace AndreaPeverelli\PhxTools;
+namespace AndreaPeverelli\PhxCli;
 
 trait Utils
 {
+	private static function getProjectRoot(): string|int
+	{
+		$home = getenv("HOME");
+		if(file_exists("$home/.config/phx/projects.config.json")) {
+			$projects = json_decode(file_get_contents("$home/.config/phx/projects.config.json"), true);
+			$cwd = getcwd();
+
+			foreach($projects as $project) {
+				if(str_contains($cwd, $project)) {
+					return $project;
+				}
+			}
+		}
+
+		echo <<<OUTPUT
+		Project root not found.
+		Run 'phx init' to create a project or 'phx register:project' for an already existing one.
+		OUTPUT;
+
+		return 1;
+	}
+
 	private static function badArguments(?string $tool = null): int
 	{
 		if(!$tool) {
 			echo <<<OUTPUT
 			Bad arguments.
-			Try 'phx-tools --help' for command list or 'phx-tools {command} --help' for specific tool help.\n
+			Try 'phx --help' for command list or 'phx {command} --help' for specific tool help.\n
 			OUTPUT;
 
 			return 2;
@@ -17,7 +39,7 @@ trait Utils
 
 		echo <<<OUTPUT
 		Bad arguments.
-		Try 'phx-tools $tool --help' for tool help.\n
+		Try 'phx $tool --help' for tool help.\n
 		OUTPUT;
 
 		return 2;

@@ -1,6 +1,6 @@
 <?php
 
-namespace AndreaPeverelli\PhxTools;
+namespace AndreaPeverelli\PhxCli;
 
 final class GenerateMetadataFilesInternals
 {

@@ -1,24 +1,22 @@
-pkgname=phx-tools
-pkgver=2.5.0
+pkgname=phx-cli
+pkgver=3.0.0
 pkgrel=1
-pkgdesc="Toolset for PHX"
+pkgdesc="CLI companion for PHX framework"
 arch=('any')
-url="https://github.com/andreapeverelli/phx-tools.git"
+url="https://github.com/andreapeverelli/phx-cli.git"
 license=('GPL-3.0')
 
 depends=(
 	'php'
 	'composer'
-)
-
-optdepends=(
-	'librsvg: SVG manipulation support'
-	'imagemagick: raster image manipulation support'
-	'inkscape: monochrome and normalize SVG support'
-	'svgo: SVG optimization support'
-	'phx-core-palette: Material You palette generation support'
-	'phx-tonal-palette: Material You palette generation support'
-	'phx-font-metrics: Material You typescale generation support'
+	'frankenphp'
+	'librsvg'
+	'imagemagick'
+	'inkscape'
+	'svgo'
+	'phx-core-palette'
+	'phx-tonal-palette'
+	'phx-font-metrics'
 )
 
 build() {
@@ -37,5 +35,5 @@ package() {
 		../vendor \
 		../src \
 		$pkgdir/usr/share/$pkgname
-	install -Dm755 ../bin/phx-tools $pkgdir/usr/bin/phx-tools
+	install -Dm755 ../bin/phx $pkgdir/usr/bin/phx
 }

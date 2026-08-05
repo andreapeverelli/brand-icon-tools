@@ -1,6 +1,6 @@
 <?php
 
-namespace AndreaPeverelli\PhxTools;
+namespace AndreaPeverelli\PhxCli;
 
 final class GenerateTypescaleInternals
 {
@@ -295,5 +295,30 @@ final class GenerateTypescaleInternals
 		}
 
 		file_put_contents($output, json_encode($typescale));
+	}
+
+	final public static function importFonts(string &$input, ?string &$input_support, bool &$verbose): void
+	{
+		$root = static::getProjectRoot();
+		$input_filename = pathinfo($input)["basename"];
+		if($input_support) $input_support_filename = pathinfo($input_support)["basename"];
+
+		if(!file_exists("$root/public/fonts/")) {
+			static::runCommand(
+				command: "mkdir -p $root/public/fonts/",
+				verbose: $verbose,
+			);
+		}
+
+		static::runCommand(
+			command: "cp $input $root/public/fonts/$input_filename",
+			verbose: $verbose,
+		);
+		if($input_support) {
+			static::runCommand(
+				command: "cp $input_support $root/public/fonts/$input_support_filename",
+				verbose: $verbose,
+			);
+		}
 	}
 }

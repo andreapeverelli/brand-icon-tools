@@ -1,6 +1,6 @@
 <?php
 
-namespace AndreaPeverelli\PhxTools;
+namespace AndreaPeverelli\PhxCli;
 
 const BOLD = "\033[1m";
 const GREEN = "\033[32m";

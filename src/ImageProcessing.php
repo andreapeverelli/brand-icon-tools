@@ -1,6 +1,6 @@
 <?php
 
-namespace AndreaPeverelli\PhxTools;
+namespace AndreaPeverelli\PhxCli;
 
 trait ImageProcessing
 {
@@ -53,7 +53,7 @@ trait ImageProcessing
 			command: <<<BASH
 			svgo $input \
 				--output $output \
-				--config /usr/share/phx-tools/config/svgo-config.js
+				--config /usr/share/phx-cli/config/svgo-config.js
 			BASH,
 			verbose: $verbose,
 		);

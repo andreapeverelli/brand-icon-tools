@@ -1,2 +1,0 @@
-#!/bin/sh
-exec php /usr/share/phx-tools/src/phx-tools.php "$@"
