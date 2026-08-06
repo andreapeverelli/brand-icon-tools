@@ -1,83 +1,88 @@
 <?php
 
+/*
+ *
+ * GenerateTypescale.php
+ * -----------------------------------
+ * Copyright (c) 2026 Andrea Peverelli
+ * License: GPL-3.0
+ * -----------------------------------
+ *
+ * PHX-CLI Generate Typescale command handler.
+ *
+ */
+
 namespace AndreaPeverelli\PhxCli;
 
 trait GenerateTypescale
 {
+	use Utils;
+	use Help;
+
+	private const GENERATE_TYPESCALE_COMMAND = "generate:typescale";
+	private const GENERATE_TYPESCALE_DESCRIPTION =
+		"Generate Material You based typescale.";
+
+	private static function getGenerateTypescaleArguments(): array|int
+	{
+		if(is_int($project_root = static::getProjectRoot())) return $project_root;
+
+		return [
+			"--input" => ["help" => "FONT_FILE"],
+			"--weight-axis" => [
+				"wght",
+				"help" => "WEIGHT_AXIS",
+				"optional" => true,
+			],
+			"--input-support" => ["help" => "SUPPORT_FONT_FILE", "optional" => true],
+			"--support-weight-axis" => [
+				"wght",
+				"help" => "WEIGHT_AXIS",
+				"optional" => true,
+			],
+			"--output" => [
+				"$project_root/typescale.json",
+				"help" => "OUTPUT_FILE",
+				"optional" => true,
+			],
+			"--verbose" => [false, "optional" => true],
+		];
+	}
+
 	private static function generateTypescale(array &$argv): int
 	{
-		if(isset($argv[2]) && $argv[2] === "--help") {
-			echo <<<OUTPUT
-			PHX-CLI Generate Typescale
-			Generate Material You based typescale.
+		if(is_int($arguments = static::getGenerateTypescaleArguments())) return $arguments;
+		$arguments = static::getCommandArguments(argv: $argv, arguments: $arguments);
 
-			Command structure:
-				phx generate:typescale --input font.ttf [--weight-axis axis_name] [--input-support support_font.ttf] [--support-weight-axis axis_name] [--output custom_path] [--verbose]
-				phx generate:typescale --help\n
-			OUTPUT;
+		if(isset($arguments["help"])) return static::help(command: self::GENERATE_TYPESCALE_COMMAND);
 
-			return 0;
-		}
+		GenerateTypescaleService::checkDependencies(verbose: $arguments["verbose"]);
 
-		$arguments_kv = static::getKeyValue(arguments: array_slice($argv, 2));
-
-		$input = $arguments_kv["--input"] ?? "";
-		if($input === "") {
-			do {
-				$input = trim(readline("Main Font: "));
-			} while($input === "");
-
-			$weight_axis = trim(readline("Weight Axis (default 'wght'): "));
-			$weight_axis = $weight_axis === "" ? "wght" : $weight_axis;
-
-			$input_support = trim(readline("Support Font (optional): "));
-			$input_support = $input_support === "" ? null : $input_support;
-
-			if($input_support) {
-				$support_weight_axis = trim(readline("Support Font Weight Axis (default 'wght'): "));
-				$support_weight_axis = $support_weight_axis === "" ? "wght" : $support_weight_axis;
-			}
-		} else {
-			$weight_axis = $arguments_kv["--weight-axis"] ?? "wght";
-			$input_support = $arguments_kv["--input-support"] ?? null;
-			$support_weight_axis = $arguments_kv["--support-weight-axis"] ?? "wght";
-		}
-		$output = $arguments_kv["--output"] ?? "typescale.json";
-
-		$verbose = $arguments_kv["--verbose"] ?? false;
-
-		GenerateTypescaleInternals::checkDependencies(verbose: $verbose);
-
-		$font_metrics = GenerateTypescaleInternals::getFontMetrics(
+		$font_metrics = GenerateTypescaleService::getFontMetrics(
+			input: $arguments["input"],
+			weight_axis: $arguments["weight-axis"],
 			description: "Generating main font metrics:",
-			input: $input,
-			weight_axis: $weight_axis,
-			verbose: $verbose,
+			verbose: $arguments["verbose"],
 		);
-		if($input_support) {
-			$support_font_metrics = GenerateTypescaleInternals::getFontMetrics(
+		if($arguments["input-support"])
+			$support_font_metrics = GenerateTypescaleService::getFontMetrics(
+				input: $arguments["input-support"],
+				weight_axis: $arguments["support-weight-axis"],
 				description: "Generating support font metrics:",
-				input: $input_support,
-				weight_axis: $support_weight_axis,
-				verbose: $verbose,
+				verbose: $arguments["verbose"],
 			);
-		}
 
 		echo BOLD . "Generating typescales:\n" . RESET;
 
-		$typescale = GenerateTypescaleInternals::generateHeadingTypescale(font_metrics: $font_metrics);
+		$typescale = GenerateTypescaleService::generateHeadingTypescale(font_metrics: $font_metrics);
 
-		$font_metrics = $input_support ? $support_font_metrics : $font_metrics;
-		$typescale = array_merge($typescale, GenerateTypescaleInternals::generateSupportTypescale(
-			font_metrics: $font_metrics,
-		));
+		$font_metrics = $arguments["input-support"] ? $support_font_metrics : $font_metrics;
+		$typescale = array_merge($typescale, GenerateTypescaleService::generateSupportTypescale(font_metrics: $font_metrics));
  
-		GenerateTypescaleInternals::writeTypescale(typescale: $typescale, output: $output);
-		GenerateTypescaleInternals::importFonts(input: $input, input_support: $input_support, verbose: $verbose);
+		GenerateTypescaleService::writeTypescale(typescale: $typescale, output: $arguments["output"]);
+		GenerateTypescaleService::copyFonts(arguments: $arguments);
 
-		echo BOLD . GREEN . "\n######################\n" . RESET;
-		echo BOLD . "Typescale generated in " . GREEN . $output . RESET . BOLD . ".\n" . RESET;
-		echo BOLD . GREEN . "######################\n" . RESET;
+		static::successMessage(message: "Typescale generated in", output: $arguments["output"]);
 
 		return 0;
 	}

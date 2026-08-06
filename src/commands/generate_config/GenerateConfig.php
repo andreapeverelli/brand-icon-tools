@@ -1,76 +1,68 @@
 <?php
 
+/*
+ *
+ * GenerateConfig.php
+ * -----------------------------------
+ * Copyright (c) 2026 Andrea Peverelli
+ * License: GPL-3.0
+ * -----------------------------------
+ *
+ * PHX-CLI Generate Config command handler.
+ *
+ */
+
 namespace AndreaPeverelli\PhxCli;
 
 trait GenerateConfig
 {
+	use Utils;
+	use Help;
+
+	private const GENERATE_CONFIG_COMMAND = "generate:config";
+	private const GENERATE_CONFIG_DESCRIPTION =
+		"Generates a project configuration interactivelly.";
+
+	private static function getGenerateConfigArguments(): array|int
+	{
+		if(is_int($project_root = static::getProjectRoot())) return $project_root;
+
+		return [
+			"--app-name" => ["help" => "APP_NAME"],
+			"--app-short-name" => ["help" => "APP_SHORT_NAME"],
+			"--vendor" => ["help" => "VENDOR"],
+			"--description" => ["help" => "DESCRIPTION"],
+			"--license" => ["help" => "LICENSE"],
+			"--domain" => ["help" => "DOMAIN"],
+			"--homepage" => ["help" => "HOMEPAGE", "optional" => true],
+			"--languages" => ["help" => "LANGUAGES"],
+			"--categories" => ["help" => "CATEGORIES"],
+			"--name-surname" => ["help" => "NAME_SURNAME"],
+			"--email" => ["help" => "EMAIL"],
+			"--personal-website" => ["help" => "PERSONAL_WEBSITE", "optional" => true],
+			"--x" => ["help" => "X", "optional" => true],
+			"--github" => ["help" => "GITHUB", "optional" => true],
+			"--output" => [
+				"$project_root/phx.config.json",
+				"help" => "OUTPUT_FILE",
+				"optional" => true,
+				"sanitizer" => "path",
+			],
+			"--verbose" => [false, "optional" => true],
+		];
+	}
+
 	private static function generateConfig(array &$argv): int
 	{
-		if(isset($argv[2]) && $argv[2] === "--help") {
-			echo <<<OUTPUT
-			PHX-CLI Init
-			Generates a project configuration interactivelly
+		if(is_int($arguments = static::getGenerateConfigArguments())) return $arguments;
+		$arguments = static::getCommandArguments(argv: $argv, arguments: $arguments);
 
-			Command structure:
-				phx init [--help]\n
-			OUTPUT;
+		if(isset($arguments["help"])) return static::help(command: self::GENERATE_CONFIG_COMMAND);
 
-			return 0;
-		}
+		$config = GenerateConfigService::makeConfig(arguments: $arguments);
+		GenerateConfigService::writeConfig(arguments: $arguments, config: $config);
 
-		do {
-			$config["app_name"] = trim(readline("App Name: "));
-		} while($config["app_name"] === "");
-
-		do {
-			$config["app_short_name"] = trim(readline("App Short Name: "));
-		} while($config["app_short_name"] === "");
-
-		do {
-			$config["vendor"] = trim(readline("Vendor: "));
-		} while($config["vendor"] === "");
-
-		do {
-			$config["description"] = trim(readline("Description: "));
-		} while($config["description"] === "");
-
-		do {
-			$config["license"] = trim(readline("License: "));
-		} while($config["license"] === "");
-
-		$config["homepage"] = trim(readline("Homepage (optional): "));
-
-		do {
-			$config["languages"] = trim(readline("Languages (separated by ,): "));
-		} while($config["languages"] === "");
-
-		do {
-			$config["categories"] = trim(readline("Categories (separated by ,): "));
-		} while($config["categories"] === "");
-		do {
-			$config["domain"] = trim(readline("Domain: "));
-		} while($config["domain"] === "");
-
-		do {
-			$config["name_surname"] = trim(readline("Name and Surname: "));
-		} while($config["name_surname"] === "");
-
-		do {
-			$config["email"] = trim(readline("Email: "));
-		} while($config["email"] === "");
-
-		$config["personal_website"] = trim(readline("Personal Website (optional): "));
-		$config["x"] = trim(readline("X (optional): "));
-		$config["github"] = trim(readline("GitHub (optional): "));
-
-		if(file_exists("phx.config.json")) {
-			unlink("phx.config.json");
-		}
-		file_put_contents("phx.config.json", json_encode($config));
-
-		echo BOLD . GREEN . "\n##############################\n" . RESET;
-		echo BOLD . "PHX configuration generated in " . GREEN . "phx.config.json" . RESET . BOLD . ".\n" . RESET;
-		echo BOLD . GREEN . "##############################\n" . RESET;
+		static::successMessage(message: "PHX configuration generated in", output: $arguments["output"]);
 
 		return 0;
 	}

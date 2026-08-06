@@ -1,50 +1,44 @@
 <?php
 
+/*
+ *
+ * RegisterProject.php
+ * -----------------------------------
+ * Copyright (c) 2026 Andrea Peverelli
+ * License: GPL-3.0
+ * -----------------------------------
+ *
+ * PHX-CLI Register Project command handler.
+ *
+ */
+
 namespace AndreaPeverelli\PhxCli;
 
 trait RegisterProject
 {
+	use Utils;
+	use Help;
+
+	private const REGISTER_PROJECT_COMMAND = "register:project";
+	private const REGISTER_PROJECT_DESCRIPTION =
+		"Registers a directory to the user's projects list.";
+
+	private static function getRegisterProjectArguments(): array
+	{
+		return ["--verbose" => [false, "optional" => true]];
+	}
+
 	private static function registerProject(array &$argv): int
 	{
-		if(isset($argv[2]) && $argv[2] === "--help") {
-			echo <<<OUTPUT
-			PHX-CLI Register Project
-			Adds an already existing project to the user's projects list.
+		$arguments = self::getCommandArguments(argv: $argv, arguments: static::getRegisterProjectArguments());
 
-			Command structure:
-				phx register:project [--help]\n
-			OUTPUT;
-		}
+		if(isset($arguments["help"])) return static::help(command: self::REGISTER_PROJECT_COMMAND);
 
-		$arguments_kv = static::getKeyValue(arguments: $argv);
+		$projects = RegisterProjectService::readProjectsFile();
+		$projects = RegisterProjectService::addProjectDirectory(projects: $projects);
+		RegisterProjectService::writeProjectsFile(projects: $projects, verbose: $arguments["verbose"]);
 
-		$verbose = $arguments_kv["--verbose"] ?? false;
-
-		$project = getcwd();
-		$home = getenv("HOME");
-		$user_file = "$home/.config/phx/projects.config.json";
-
-		if(!file_exists("$home/.config/phx/")) {
-			if(!file_exists("$home/.config/")) {
-				mkdir("$home/.config/");
-			}
-
-			mkdir("$home/.config/phx/");
-		}
-
-		$projects = [];
-		if(file_exists($user_file)) {
-			$projects = json_decode(file_get_contents($user_file), true);
-			unlink($user_file);
-
-			if(!in_array($project, $projects)) {
-				array_push($projects, $project);
-			}
-		} else {
-			$projects = [$project];
-		}
-
-		file_put_contents($user_file, json_encode($projects));
+		static::successMessage(message: "Project registered.");
 
 		return 0;
 	}

@@ -1,9 +1,23 @@
 <?php
 
+/*
+ *
+ * ImageProcessing.php
+ * -----------------------------------
+ * Copyright (c) 2026 Andrea Peverelli
+ * License: GPL-3.0
+ * -----------------------------------
+ *
+ * Image processing utilities for generating and transforming vectorial/raster assets.
+ *
+ */
+
 namespace AndreaPeverelli\PhxCli;
 
 trait ImageProcessing
 {
+	use Utils;
+
 	private static function normalizeSvg(
 		string $input,
 		string $output,

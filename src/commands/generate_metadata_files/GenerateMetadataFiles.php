@@ -1,84 +1,91 @@
 <?php
 
+/*
+ *
+ * GenerateMetadataFiles.php
+ * -----------------------------------
+ * Copyright (c) 2026 Andrea Peverelli
+ * License: GPL-3.0
+ * -----------------------------------
+ *
+ * PHX-CLI Generate Metadata Files command handler.
+ *
+ */
+
 namespace AndreaPeverelli\PhxCli;
 
 trait GenerateMetadataFiles
 {
+	use Utils;
+	use Help;
+
+	private const GENERATE_METADATA_FILES_COMMAND = "generate:metadata-files";
+	private const GENERATE_METADATA_FILES_DESCRIPTION =
+		"Generates manifest/browserconfig/robots/security/humans metadata files based on configurations.";
+
+	private static function getGenerateMetadataFilesArguments(): array|int
+	{
+		if(is_int($project_root = static::getProjectRoot())) return $project_root;
+
+		return [
+			"--phx-config" => [
+				"$project_root/phx.config.json",
+				"help" => "PHX_CONFIG_FILE",
+				"optional" => true,
+			],
+			"--palette" => [
+				"$project_root/palette.json",
+				"help" => "PALETTE_FILE",
+				"optional" => true,
+			],
+			"--icons-uri" => [
+				"/icons",
+				"help" => "ICONS_URI",
+				"optional" => true,
+				"sanitizer" => "path"
+			],
+			"--output" => [
+				"$project_root/public",
+				"help" => "OUTPUT_DIRECTORY",
+				"optional" => true,
+				"sanitizer" => "path"
+			],
+			"--verbose" => [false, "optional" => true],
+		];
+	}
+
 	private static function generateMetadataFiles(array &$argv): int
 	{
-		if(isset($argv[2]) && $argv[2] === "--help") {
-			echo <<<OUTPUT
-			PHX-CLI Generate Metadata Files
-				Generates manifest/browserconfig/robots/security/humans metadata files based on configurations.
+		if(is_int($arguments = static::getGenerateMetadataFilesArguments())) return $arguments;
+		$arguments = static::getCommandArguments(argv: $argv, arguments: $arguments);
 
-			Command structure:
-				phx generate:metadata-files [--phx-config phx_config_file] [--palette palette_file] [--icons-uri icons_uri] [--output output_dir]
-				phx generate:metadata-files --help\n
-			OUTPUT;
+		if(isset($arguments["help"])) return staatic::help(command: self::GENERATE_METADATA_FILES_COMMAND);
 
-			return 0;
-		}
-
-		$arguments_kv = static::getKeyValue(arguments: array_slice($argv, 2));
-
-		$phx_config = $arguments_kv["--phx-config"] ?? "phx.config.json";
-		$palette = $arguments_kv["--palette"] ?? "palette.json";
-
-		$icons_uri = $arguments_kv["--icons-uri"] ?? "/icons";
-		if(str_ends_with($icons_uri, "/")) {
-			$icons_uri = substr($icons_uri, 0, strlen($icons_uri) - 1);
-		}
-
-		$output = $arguments_kv["--output"] ?? "public/";
-
-		$verbose = in_array("--verbose", $arguments_kv) ? true : false;
-
-		if(!file_exists($phx_config)) {
-			echo <<<OUTPUT
-			PHX-TOOLS Generate Manifest needs a valid phx-config file.
-
-			Please run 'phx-tools init'.\n
-			OUTPUT;
-
-			return 1;
-		}
-		$phx_config = json_decode(file_get_contents($phx_config), true);
-		if(!file_exists($palette)) {
-			echo <<<OUTPUT
-			PHX-TOOLS Generate Manifest needs a valid palette file.
-
-			Please run 'phx-tools generate:palette --source-color "#source_color"'.\n
-			OUTPUT;
-
-			return 1;
-		}
-		$palette = json_decode(file_get_contents($palette), true);
-
-		if(!file_exists($output)) {
-			mkdir($output);
-		}
+		if(is_int($files = GenerateMetadataFilesService::importFiles(arguments: $arguments))) return $files;
+		[
+			"phx_config" => $phx_config,
+			"palette" => $palette,
+		] = $files;
 
 		echo BOLD . "Generating metadata files:\n" . RESET;
 
-		GenerateMetadataFilesInternals::generateManifest(
-			phx_config: $phx_config,
-			palette: $palette,
-			icons_uri: $icons_uri,
-			output: $output,
-		);
-		GenerateMetadataFilesInternals::generateBrowserconfig(
-			phx_config: $phx_config,
-			palette: $palette,
-			icons_uri: $icons_uri,
-			output: $output,
-		);
-		GenerateMetadataFilesInternals::generateRobots(phx_config: $phx_config, output: $output);
-		GenerateMetadataFilesInternals::generateSecurity(phx_config: $phx_config, output: $output);
-		GenerateMetadataFilesInternals::generateHumans(phx_config: $phx_config, output: $output);
+		static::ensureDirectoryExists(directory: $arguments["output"], verbose: $arguments["verbose"]);
 
-		echo BOLD . GREEN . "\n###################\n" . RESET;
-		echo BOLD . "Files metadata created in " . GREEN . $output . ".\n" . RESET;
-		echo BOLD . GREEN . "###################\n" . RESET;
+		GenerateMetadataFilesService::generateManifest(
+			arguments: $arguments,
+			phx_config: $phx_config,
+			palette: $palette,
+		);
+		GenerateMetadataFilesService::generateBrowserconfig(
+			arguments: $arguments,
+			phx_config: $phx_config,
+			palette: $palette,
+		);
+		GenerateMetadataFilesService::generateRobots(arguments: $arguments, phx_config: $phx_config);
+		GenerateMetadataFilesService::generateSecurity(arguments: $arguments, phx_config: $phx_config);
+		GenerateMetadataFilesService::generateHumans(arguments: $arguments, phx_config: $phx_config);
+
+		static::successMessage(message: "Files metadata created in", output: $arguments["output"]);
 
 		return 0;
 	}

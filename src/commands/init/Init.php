@@ -1,27 +1,74 @@
 <?php
 
+/*
+ *
+ * Init.php
+ * -----------------------------------
+ * Copyright (c) 2026 Andrea Peverelli
+ * License: GPL-3.0
+ * -----------------------------------
+ *
+ * PHX-CLI Init command orchestrator.
+ *
+ */
+
 namespace AndreaPeverelli\PhxCli;
 
 trait Init
 {
+	use RegisterProject;
+	use GenerateConfig;
+	use Setup;
+	use GenerateIconset;
+	use GeneratePalette;
+	use GenerateTypescale;
+
+	private const INIT_COMMAND = "init";
+	private const INIT_DESCRIPTION =
+		"Initialize a new PHX project.";
+
+	private static function getInitArguments(): array|int
+	{
+		if(is_int($register_project_arguments = static::getRegisterProjectArguments())) return $register_project_arguments;
+		if(is_int($generate_config_arguments = static::getGenerateConfigArguments())) return $generate_config_arguments;
+		if(is_int($setup_arguments = static::getSetupArguments())) return $setup_arguments;
+		if(is_int($generate_iconset_arguments = static::getGenerateIconsetArguments())) return $generate_iconset_arguments;
+		if(is_int($generate_palette_arguments = static::getGeneratePaletteArguments())) return $generate_palette_arguments;
+		if(is_int($generate_typescale_arguments = static::getGenerateTypescaleArguments())) return $generate_typescale_arguments;
+
+		$arguments = [
+			...$register_project_arguments,
+			...$generate_config_arguments,
+			...$setup_arguments,
+			...$generate_iconset_arguments,
+			...$generate_palette_arguments,
+			...$generate_typescale_arguments,
+		];
+		unset($arguments["--output"]);
+
+		return $arguments;
+	}
+
 	private static function init(array &$argv): int
 	{
-		if(isset($argv[2]) && $argv[2] === "--help") {
-			echo <<<OUTPUT
-			PHX-CLI Init
-			Initialize a new PHX project.
+		if(in_array("--help", $argv)) return static::help(command: self::INIT_COMMAND);
 
-			Command structure:
-				phx init [--help]
-			OUTPUT;
-		}
+		if($exit = static::registerProject($argv)) return $exit;
+		echo "\n";
 
-		if(static::registerProject($argv)) return 1;
-		if(static::generateConfig($argv)) return 1;
-		if(static::setup($argv)) return 1;
-		if(static::generateIconset($argv)) return 1;
-		if(static::generatePalette($argv)) return 1;
-		if(static::generateTypescale($argv)) return 1;
+		if($exit = static::generateConfig($argv)) return $exit;
+		echo "\n";
+
+		if($exit = static::setup($argv)) return $exit;
+		echo "\n";
+
+		if($exit = static::generateIconset($argv)) return $exit;
+		echo "\n";
+
+		if($exit = static::generatePalette($argv)) return $exit;
+		echo "\n";
+
+		if($exit = static::generateTypescale($argv)) return $exit;
 
 		return 0;
 	}

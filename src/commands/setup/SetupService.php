@@ -1,17 +1,45 @@
 <?php
 
+/*
+ *
+ * SetupService.php
+ * -----------------------------------
+ * Copyright (c) 2026 Andrea Peverelli
+ * License: GPL-3.0
+ * -----------------------------------
+ *
+ * PHX-CLI Setup command functionalities.
+ *
+ */
+
 namespace AndreaPeverelli\PhxCli;
 
-final class SetupInternals
+final class SetupService
 {
 	use Utils;
+
+	private function __construct() {}
+
+	final public static function readConfigFile(string &$phx_config): array|int
+	{
+		if(file_exists($phx_config)) {
+			return json_decode(file_get_contents($phx_config), true);
+		} else {
+			echo <<<OUTPUT
+			PHX-CLI Setup needs a valid phx-config file.
+			Try 'phx generate:config'.
+			OUTPUT;
+
+			return 1;
+		}
+	}
 
 	final public static function initComposer(array &$phx_config, bool &$verbose): void
 	{
 		$vendor = $phx_config["vendor"];
-		$app_name = $phx_config["app_name"];
+		$app_name = $phx_config["app-name"];
 		$description = $phx_config["description"];
-		$name = $phx_config["name_surname"];
+		$name = $phx_config["name-surname"];
 		$email = $phx_config["email"];
 		$homepage = $phx_config["homepage"] ? "--homepage=\"{$phx_config["homepage"]}\"" : "";
 		$license = $phx_config["license"];
@@ -37,7 +65,10 @@ final class SetupInternals
 	{
 		echo BOLD . "Adding PHX VCS repos to Composer: " . RESET;
 
-		$composer = json_decode(file_get_contents("./composer.json"), true);
+		$project_root = static::getProjectRoot();
+		$composer_file_path = "$project_root/composer.json";
+
+		$composer = json_decode(file_get_contents($composer_file_path), true);
 
 		$composer["repositories"] = [
 			[
@@ -51,10 +82,10 @@ final class SetupInternals
 		];
 		$composer["require"] = (object)[];
 
-		unlink("./composer.json");
-		file_put_contents("./composer.json", json_encode($composer, JSON_PRETTY_PRINT));
+		static::deleteFile(file_name: $composer_file_path);
+		file_put_contents($composer_file_path, json_encode($composer, JSON_PRETTY_PRINT));
 
-		echo BOLD . GREEN . "SUCCESS\n\n" . RESET;
+		echo BOLD . GREEN . "SUCCESS\n" . RESET;
 	}
 
 	final public static function installPhx(bool &$verbose): void

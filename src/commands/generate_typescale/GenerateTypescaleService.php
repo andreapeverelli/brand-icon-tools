@@ -1,10 +1,24 @@
 <?php
 
+/*
+ *
+ * GenerateTypescaleService.php
+ * -----------------------------------
+ * Copyright (c) 2026 Andrea Peverelli
+ * License: GPL-3.0
+ * -----------------------------------
+ *
+ * PHX-CLI Generate Typescale command functionalities.
+ *
+ */
+
 namespace AndreaPeverelli\PhxCli;
 
-final class GenerateTypescaleInternals
+final class GenerateTypescaleService
 {
 	use Utils;
+
+	private function __construct() {}
 
 	private const REFERENCE = [
 		"x_ratio" => [
@@ -188,7 +202,7 @@ final class GenerateTypescaleInternals
 			command: "phx-font-metrics --version",
 			verbose: $verbose,
 			error_message: <<<OUTPUT
-			PHX-TOOLS Generate Typescale requires 'phx-font-metrics' for generating a Material You typescale.
+			PHX-CLI Generate Typescale requires 'phx-font-metrics' for generating a Material You typescale.
 			
 			For install instructions follow https://github.com/andreapeverelli/phx-font-metrics/blob/main/README.md
 			OUTPUT,
@@ -196,9 +210,9 @@ final class GenerateTypescaleInternals
 	}
 
 	final public static function getFontMetrics(
-		string $description,
 		string &$input,
 		string &$weight_axis,
+		string $description,
 		bool &$verbose,
 	): array
 	{
@@ -290,33 +304,30 @@ final class GenerateTypescaleInternals
 
 	final public static function writeTypescale(array &$typescale, string &$output): void
 	{
-		if(file_exists($output)) {
-			unlink($output);
-		}
-
-		file_put_contents($output, json_encode($typescale));
+		static::deleteFile(file_name: $output);
+		file_put_contents($output, json_encode($typescale, JSON_PRETTY_PRINT));
 	}
 
-	final public static function importFonts(string &$input, ?string &$input_support, bool &$verbose): void
+	final public static function copyFonts(array &$arguments): void
 	{
-		$root = static::getProjectRoot();
-		$input_filename = pathinfo($input)["basename"];
+		$project_root = static::getProjectRoot();
+
+		$input_support = $arguments["input-support"];
+		$verbose = $arguments["verbose"];
+
+		$input_filename = pathinfo($arguments["input"])["basename"];
 		if($input_support) $input_support_filename = pathinfo($input_support)["basename"];
 
-		if(!file_exists("$root/public/fonts/")) {
-			static::runCommand(
-				command: "mkdir -p $root/public/fonts/",
-				verbose: $verbose,
-			);
-		}
+		$fonts_directory = "$project_root/public/fonts";
+		static::ensureDirectoryExists(directory: $fonts_directory, verbose: $verbose);
 
 		static::runCommand(
-			command: "cp $input $root/public/fonts/$input_filename",
+			command: "cp {$arguments["input"]} $fonts_directory/$input_filename",
 			verbose: $verbose,
 		);
 		if($input_support) {
 			static::runCommand(
-				command: "cp $input_support $root/public/fonts/$input_support_filename",
+				command: "cp $input_support $fonts_directory/$input_support_filename",
 				verbose: $verbose,
 			);
 		}

@@ -1,5 +1,17 @@
 <?php
 
+/*
+ *
+ * Utils.php
+ * -----------------------------------
+ * Copyright (c) 2026 Andrea Peverelli
+ * License: GPL-3.0
+ * -----------------------------------
+ *
+ * Shared utilities used by PHX-CLI commands.
+ *
+ */
+
 namespace AndreaPeverelli\PhxCli;
 
 trait Utils
@@ -45,7 +57,7 @@ trait Utils
 		return 2;
 	}
 
-	private static function getKeyValue(array $arguments): array
+	private static function parseArguments(array $arguments): array
 	{
 		$arguments_kv = [];
 
@@ -63,6 +75,44 @@ trait Utils
 		}
 
 		return $arguments_kv;
+	}
+
+	private static function getCommandArguments(array &$argv, array $arguments): array
+	{
+		$command_arguments = [];
+		if(in_array("--help", $argv)) $command_arguments["help"] = true;
+
+		if(!isset($command_arguments["help"])) {
+			$parsed_arguments = static::parseArguments(arguments: array_slice($argv, 2));
+
+			foreach($arguments as $key => $value) {
+				$new_key = ltrim($key, "-");
+				$command_arguments[$new_key] = $value[0] ?? null;
+
+				if(!isset($parsed_arguments[$key]) && $new_key !== "verbose") {
+					$format = isset($value["format"]) ? " ({$value["format"]})" : "";
+					$user_input = static::askUserInput(
+						prompt: implode(" ", array_map("ucfirst", explode("_", strtolower($value["help"])))) . "$format",
+						optional: isset($value["optional"]) ? true : false,
+					);
+					if($user_input !== "" || !isset($value[0])) $command_arguments[$new_key] = $user_input;
+				}
+
+				if(isset($value["sanitizer"])) {
+					if($value["sanitizer"] === "path")
+						$command_arguments[$new_key] = static::pathSanitizer(value: $command_arguments[$new_key]);
+				}
+			}
+		}
+
+		return $command_arguments;
+	}
+
+	private static function pathSanitizer(string $value): string
+	{
+		if(str_ends_with($value, "/")) return substr($value, 0, strlen($value) - 1);
+
+		return $value;
 	}
 
 	private static function runCommand(
@@ -126,5 +176,43 @@ trait Utils
 		} else {
 			return 0;
 		}
+	}
+
+	private static function ensureDirectoryExists(string $directory, bool $verbose): void
+	{
+		if(!file_exists($directory)) {
+			static::runCommand(
+				command: "mkdir -p $directory",
+				verbose: $verbose,
+			);
+		}
+	}
+
+	private static function deleteFile(string $file_name): void
+	{
+		if(file_exists($file_name)) unlink($file_name);
+	}
+
+	private static function askUserInput(string $prompt, bool $optional = false): string
+	{
+		if($optional) {
+			return trim(readline("$prompt (optional): "));
+		} else {
+			$input = "";
+			do {
+				$input = trim(readline("$prompt: "));
+			} while($input === "");
+
+			return $input;
+		}
+	}
+
+	private static function successMessage(string $message, ?string $output = null): void
+	{
+		$line = $output ? "$message " . GREEN . $output . RESET . BOLD . ".\n" : "$message\n";
+
+		echo BOLD . GREEN . "\n" . str_repeat("#", strlen($message)) . "\n" . RESET;
+		echo BOLD . $line . RESET;
+		echo BOLD . GREEN . str_repeat("#", strlen($message)) . "\n" . RESET;
 	}
 }

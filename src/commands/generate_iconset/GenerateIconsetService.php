@@ -1,11 +1,25 @@
 <?php
 
+/*
+ *
+ * GenerateIconsetService.php
+ * -----------------------------------
+ * Copyright (c) 2026 Andrea Peverelli
+ * License: GPL-3.0
+ * -----------------------------------
+ *
+ * PHX-CLI Generate Iconset command functionalities.
+ *
+ */
+
 namespace AndreaPeverelli\PhxCli;
 
-final class GenerateIconsetInternals
+final class GenerateIconsetService
 {
 	use Utils;
 	use ImageProcessing;
+
+	private function __construct() {}
 
 	final public static function checkDependencies(bool &$verbose): void
 	{
@@ -13,7 +27,7 @@ final class GenerateIconsetInternals
 			command: "magick -version",
 			verbose: $verbose,
 			error_message: <<<OUTPUT
-			PHX-TOOLS Generate Iconset requires 'imagemagick' for raster manipulation.
+			PHX-CLI Generate Iconset requires 'imagemagick' for raster manipulation.
 			
 			Please run 'sudo pacman -S imagemagick' and retry
 			OUTPUT,
@@ -23,7 +37,7 @@ final class GenerateIconsetInternals
 			command: "rsvg-convert --version",
 			verbose: $verbose,
 			error_message: <<<OUTPUT
-			PHX-TOOLS Generate Iconset requires 'librsvg' for SVG manipulation.
+			PHX-CLI Generate Iconset requires 'librsvg' for SVG manipulation.
 			
 			Please run 'sudo pacman -S librsvg' and retry
 			OUTPUT,
@@ -33,7 +47,7 @@ final class GenerateIconsetInternals
 			command: "inkscape --version",
 			verbose: $verbose,
 			error_message: <<<OUTPUT
-			PHX-TOOLS Generate Iconset requires 'inkscape' for generating monochrome SVG.
+			PHX-CLI Generate Iconset requires 'inkscape' for generating monochrome SVG.
 			
 			Please run 'sudo pacman -S inkscape' and retry
 			OUTPUT,
@@ -43,44 +57,68 @@ final class GenerateIconsetInternals
 			command: "svgo --version",
 			verbose: $verbose,
 			error_message: <<<OUTPUT
-			PHX-TOOLS Generate Iconset requires 'svgo' for SVG optimization.
+			PHX-CLI Generate Iconset requires 'svgo' for SVG optimization.
 			
 			Please run 'sudo pacman -S svgo' and retry
 			OUTPUT,
 		);
 	}
 
-	final public static function normalizeInputSvg(string &$tmp, string &$input, bool &$verbose): void
+	final public static function normalizeInputSvg(array &$arguments): string
 	{
+		$tmp = sys_get_temp_dir();
+		$file_id = uniqid();
+		$file_path = "$tmp/$file_id.svg";
+
 		static::normalizeSvg(
 			description: [
 				"Normalizing plain SVG:",
 				"bold" => true,
 				"new_line" => true,
 			],
-			input: $input,
-			output: "$tmp/normalized-icon.svg",
-			verbose: $verbose,
+			input: $arguments["input"],
+			output: $file_path,
+			verbose: $arguments["verbose"],
 		);
+
+		return $file_path;
 	}
 
-	final public static function generateMonochromeSvg(string &$tmp, bool &$verbose): void
+	final public static function generateMonochromeSvg(array &$arguments, string &$normalized_svg_path): string
 	{
+		$tmp = sys_get_temp_dir();
+		$file_id = uniqid();
+		$file_path = "$tmp/$file_id.svg";
+
 		static::svgToMonochromeSvg(
 			description: [
 				"Generating monochrome SVG:",
 				"bold" => true,
 				"new_line" => true,
 			],
-			input: "$tmp/normalized-icon.svg",
-			output: "$tmp/monochrome-icon.svg",
-			verbose: $verbose,
+			input: $normalized_svg_path,
+			output: $file_path,
+			verbose: $arguments["verbose"],
 		);
+
+		return $file_path;
 	}
 
-	final public static function optimizeIcons(string &$tmp, bool &$verbose): void
+	final public static function optimizeIcons(
+		array &$arguments,
+		string &$normalized_svg_path,
+		string &$monochrome_svg_path,
+	): array
 	{
 		echo BOLD . "Optimizing SVGs:\n" . RESET;
+
+		$tmp = sys_get_temp_dir();
+
+		$optimized_svg_id = uniqid();
+		$optimized_monochrome_svg_id = uniqid();
+
+		$optimized_svg_path = "$tmp/$optimized_svg_id.svg";
+		$optimized_monochrome_svg_path = "$tmp/$optimized_monochrome_svg_id.svg";
 
 		static::optimizeSvgs(
 			descriptions: [
@@ -88,20 +126,28 @@ final class GenerateIconsetInternals
 				[" | monochrome SVG:", "new_line" => true],
 			],
 			inputs: [
-				"$tmp/normalized-icon.svg",
-				"$tmp/monochrome-icon.svg",
+				$normalized_svg_path,
+				$monochrome_svg_path,
 			],
 			outputs: [
-				"$tmp/optimized-icon.svg",
-				"$tmp/optimized-monochrome-icon.svg",
+				$optimized_svg_path,
+				$optimized_monochrome_svg_path,
 			],
-			verbose: $verbose,
+			verbose: $arguments["verbose"],
 		);
+
+		return [
+			"optimized_svg_path" => $optimized_svg_path,
+			"optimized_monochrome_svg_path" => $optimized_monochrome_svg_path,
+		];
 	}
 
-	final public static function generateFavicons(string &$output, string &$tmp, bool &$verbose): void
+	final public static function generateFavicons(array &$arguments, string &$optimized_svg_path): void
 	{
 		echo BOLD . "Generating favicons:\n" . RESET;
+
+		$output = $arguments["output"];
+
 		$favicon_sizes = [16, 32, 48, 64, 128, 256];
 
 		static::svgToCustomPngs(
@@ -113,7 +159,7 @@ final class GenerateIconsetInternals
 				" | favicon-128x128.png",
 				" | favicon-256x256.png",
 			],
-			input: "$tmp/optimized-icon.svg",
+			input: $optimized_svg_path,
 			outputs: [
 				"$output/favicon-16x16.png",
 				"$output/favicon-32x32.png",
@@ -124,7 +170,7 @@ final class GenerateIconsetInternals
 			],
 			sizes: [16, 32, 48, 64, 128, 256],
 			scale: 90,
-			verbose: $verbose,
+			verbose: $arguments["verbose"],
 		);
 
 		static::pngsToIco(
@@ -138,24 +184,31 @@ final class GenerateIconsetInternals
 				"$output/favicon-256x256.png",
 			],
 			output: "$output/favicon.ico",
-			verbose: $verbose,
+			verbose: $arguments["verbose"],
 		);
 
 		echo " | favicon.svg: ";
-		copy("$tmp/optimized-icon.svg", "$output/favicon.svg");
+		copy($optimized_svg_path, "$output/favicon.svg");
 		echo BOLD . GREEN . "SUCCESS\n\n" . RESET;
 	}
 
-	final public static function generateAppleIcons(string &$output, string &$tmp, bool &$verbose): void
+	final public static function generateAppleIcons(
+		array &$arguments,
+		string &$optimized_svg_path,
+		string &$optimized_monochrome_svg_path,
+	): void
 	{
 		echo BOLD . "Generating Apple Icons:\n" . RESET;
+
+		$output = $arguments["output"];
+
 		static::svgToCustomPngs(
 			descriptions: [
 				" | apple-touch-icon-152x152.png",
 				" | apple-touch-icon-167x167.png",
 				" | apple-touch-icon-180x180.png",
 			],
-			input: "$tmp/optimized-icon.svg",
+			input: $optimized_svg_path,
 			outputs: [
 				"$output/apple-touch-icon-152x152.png",
 				"$output/apple-touch-icon-167x167.png",
@@ -163,7 +216,7 @@ final class GenerateIconsetInternals
 			],
 			sizes: [152, 167, 180],
 			scale: 90,
-			verbose: $verbose,
+			verbose: $arguments["verbose"],
 		);
 
 		echo " | apple-touch-icon.png: ";
@@ -171,19 +224,27 @@ final class GenerateIconsetInternals
 		echo BOLD . GREEN . "SUCCESS\n" . RESET;
 
 		echo " | safari-pinned-tab.svg: ";
-		copy("$tmp/optimized-monochrome-icon.svg", "$output/safari-pinned-tab.svg");
+		copy($optimized_monochrome_svg_path, "$output/safari-pinned-tab.svg");
 		echo BOLD . GREEN . "SUCCESS\n\n" . RESET;
 	}
 
-	final public static function generateAndroidIcons(string &$output, string &$tmp, bool &$verbose): void
+	final public static function generateAndroidIcons(
+		array &$arguments,
+		string &$optimized_svg_path,
+		string &$optimized_monochrome_svg_path,
+	): void
 	{
 		echo BOLD . "Generating Android Icons: \n" . RESET;
+
+		$output = $arguments["output"];
+		$verbose = $arguments["verbose"];
+
 		static::svgToCustomPngs(
 			descriptions: [
 				" | android-chrome-192x192.png",
 				" | android-chrome-512x512.png",
 			],
-			input: "$tmp/optimized-icon.svg",
+			input: $optimized_svg_path,
 			outputs: [
 				"$output/android-chrome-192x192.png",
 				"$output/android-chrome-512x512.png",
@@ -197,7 +258,7 @@ final class GenerateIconsetInternals
 				" | maskable-icon-192x192.png",
 				" | maskable-icon-512x512.png",
 			],
-			input: "$tmp/optimized-icon.svg",
+			input: $optimized_svg_path,
 			outputs: [
 				"$output/maskable-icon-192x192.png",
 				"$output/maskable-icon-512x512.png",
@@ -208,7 +269,7 @@ final class GenerateIconsetInternals
 		);
 		static::svgToCustomPng(
 			description: [" | monochrome-icon-512x512.png", "new_line" => true],
-			input: "$tmp/optimized-monochrome-icon.svg",
+			input: $optimized_monochrome_svg_path,
 			output: "$output/monochrome-icon-512x512.png",
 			size: 512,
 			scale: 90,
@@ -216,16 +277,19 @@ final class GenerateIconsetInternals
 		);
 	}
 
-	final public static function generateMicrosoftIcons(string &$output, string &$tmp, bool &$verbose): void
+	final public static function generateMicrosoftIcons(array &$arguments, string &$optimized_svg_path): void
 	{
 		echo BOLD . "Generating Microsoft Icons:\n" . RESET;
+
+		$output = $arguments["output"];
+
 		static::svgToCustomPngs(
 			descriptions: [
 				" | mstile-70x70.png",
 				" | mstile-150x150.png",
 				" | mstile-310x310.png",
 			],
-			input: "$tmp/optimized-icon.svg",
+			input: $optimized_svg_path,
 			outputs: [
 				"$output/mstile-70x70.png",
 				"$output/mstile-150x150.png",
@@ -233,47 +297,51 @@ final class GenerateIconsetInternals
 			],
 			sizes: [70, 150, 310],
 			scale: 90,
-			verbose: $verbose,
+			verbose: $arguments["verbose"],
 		);
 		static::svgToCustomPng(
 			description: [" | mstile-310x150.png", "new_line" => true],
-			input: "$tmp/optimized-icon.svg",
+			input: $optimized_svg_path,
 			output: "$output/mstile-310x150.png",
 			size: [310, 150],
 			scale: 65,
-			verbose: $verbose,
+			verbose: $arguments["verbose"],
 		);
 	}
 
-	final public static function generateOpenGraphIcon(string &$output, string &$tmp, bool &$verbose): void
+	final public static function generateOpenGraphIcon(array &$arguments, string &$optimized_svg_path): void
 	{
+		$output = $arguments["output"];
+
 		static::svgToCustomPng(
 			description: [
 				"Generating OpenGraph:",
 				"bold" => true,
 				"new_line" => true,
 			],
-			input: "$tmp/optimized-icon.svg",
+			input: $optimized_svg_path,
 			output: "$output/og-image.png",
 			size: [1200, 630],
 			scale: 65,
-			verbose: $verbose,
+			verbose: $arguments["verbose"],
 		);
 	}
 
-	final public static function generateTwitterIcon(string &$output, string &$tmp, bool &$verbose): void
+	final public static function generateTwitterIcon(array &$arguments, string &$optimized_svg_path): void
 	{
+		$output = $arguments["output"];
+
 		static::svgToCustomPng(
 			description: [
 				"Generating Twitter Image:",
 				"bold" => true,
 				"new_line" => true,
 			],
-			input: "$tmp/optimized-icon.svg",
+			input: $optimized_svg_path,
 			output: "$output/twitter-image.png",
 			size: [1200, 600],
 			scale: 65,
-			verbose: $verbose,
+			verbose: $arguments["verbose"],
 		);
 	}
 }

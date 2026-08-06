@@ -1,24 +1,65 @@
 <?php
 
+/*
+ *
+ * GenerateMetadataFilesService.php
+ * -----------------------------------
+ * Copyright (c) 2026 Andrea Peverelli
+ * License: GPL-3.0
+ * -----------------------------------
+ *
+ * PHX-CLI Generate Metadata Files command functionalities.
+ *
+ */
+
 namespace AndreaPeverelli\PhxCli;
 
-final class GenerateMetadataFilesInternals
+final class GenerateMetadataFilesService
 {
-	final public static function generateManifest(
-		array &$phx_config,
-		array &$palette,
-		string &$icons_uri,
-		string &$output,
-	): void
+	use Utils;
+
+	private function __construct() {}
+
+	final public static function importFiles(array &$arguments): array|int
+	{
+		if(!file_exists($arguments["phx-config"])) {
+			echo <<<OUTPUT
+			PHX-CLI Generate Manifest needs a valid phx-config file.
+
+			Please run 'phx generate:config'.\n
+			OUTPUT;
+
+			return 1;
+		}
+
+		if(!file_exists($arguments["palette"])) {
+			echo <<<OUTPUT
+			PHX-CLI Generate Manifest needs a valid palette file.
+
+			Please run 'phx generate:palette'.\n
+			OUTPUT;
+
+			return 1;
+		}
+
+		return [
+			"phx_config" => json_decode(file_get_contents($arguments["phx-config"]), true),
+			"palette" => json_decode(file_get_contents($arguments["palette"]), true),
+		];
+	}
+
+	final public static function generateManifest(array &$arguments, array &$phx_config, array &$palette): void
 	{
 		echo BOLD . " | manifest.webmanifest: " . RESET;
+
+		$icons_uri = $arguments["icons-uri"];
 
 		$categories = explode(",", $phx_config["categories"]);
 
 		$manifest = [
 			"id" => "/",
-			"name" => $phx_config["app_name"],
-			"short_name" => $phx_config["app_short_name"],
+			"name" => $phx_config["app-name"],
+			"short_name" => $phx_config["app-short-name"],
 			"description" => $phx_config["description"],
 
 			"lang" => $phx_config["languages"],
@@ -114,23 +155,20 @@ final class GenerateMetadataFilesInternals
 			"prefer_related_applications" => false,
 		];
 
-		$file_name = "$output/manifest.webmanifest";
-		if(file_exists($file_name)) {
-			unlink($file_name);
-		}
-		file_put_contents($file_name, json_encode($manifest));
+		$file_name = "{$arguments["output"]}/manifest.webmanifest";
+
+		static::deleteFile(file_name: $file_name);
+		file_put_contents($file_name, json_encode($manifest, JSON_PRETTY_PRINT));
 
 		echo BOLD . GREEN . "SUCCESS\n" . RESET;
 	}
 
-	final public static function generateBrowserconfig(
-		array &$phx_config,
-		array &$palette,
-		string &$icons_uri,
-		string &$output,
-	): void
+	final public static function generateBrowserconfig(array &$arguments, array &$phx_config, array &$palette): void
 	{
 		echo BOLD . " | browserconfig.xml: " . RESET;
+
+		$icons_uri = $arguments["icons-uri"];
+
 		$browser_config = <<<XML
 		<?xml version="1.0" encoding="utf-8"?>
 
@@ -148,16 +186,15 @@ final class GenerateMetadataFilesInternals
 		</browserconfig>\n
 		XML;
 
-		$file_name = "$output/browserconfig.xml";
-		if(file_exists($file_name)) {
-			unlink($file_name);
-		}
+		$file_name = "{$arguments["output"]}/browserconfig.xml";
+
+		static::deleteFile(file_name: $file_name);
 		file_put_contents($file_name, $browser_config);
 
 		echo BOLD . GREEN . "SUCCESS\n" . RESET;
 	}
 
-	final public static function generateRobots(array &$phx_config, string &$output): void
+	final public static function generateRobots(array &$arguments, array &$phx_config): void
 	{
 		echo BOLD . " | robots.txt: " . RESET;
 
@@ -171,18 +208,19 @@ final class GenerateMetadataFilesInternals
 		Host: {$phx_config["domain"]}\n
 		TXT;
 
-		$file_name = "$output/robots.txt";
-		if(file_exists($file_name)) {
-			unlink($file_name);
-		}
+		$file_name = "{$arguments["output"]}/robots.txt";
+
+		static::deleteFile(file_name: $file_name);
 		file_put_contents($file_name, $robots);
 
 		echo BOLD . GREEN . "SUCCESS\n" . RESET;
 	}
 
-	final public static function generateSecurity(array &$phx_config, string &$output): void
+	final public static function generateSecurity(array &$arguments, array &$phx_config): void
 	{
 		echo BOLD . " | security.txt and .well-known/security.txt: " . RESET;
+
+		$output = $arguments["output"];
 
 		$expires = (new \DateTimeImmutable("now", new \DateTimeZone("UTC")))->modify("+6 months")->format("Y-m-s\TH:i:s\Z");
 		
@@ -198,48 +236,34 @@ final class GenerateMetadataFilesInternals
 		TXT;
 
 		$file_name = "$output/security.txt";
-		if(file_exists($file_name)) {
-			unlink($file_name);
-		}
+
+		static::deleteFile(file_name: $file_name);
 		file_put_contents($file_name, $security);
 
-		if(!file_exists("$output/.well-known")) {
-			mkdir("$output/.well-known/");
-		}
+		$well_known_directory = "$output/.well-known";
+		static::ensureDirectoryExists(directory: $well_known_directory, verbose: $arguments["verbose"]);
 
-		$well_known_file_name = "$output/.well-known/security.txt";
-		if(file_exists($well_known_file_name)) {
-			unlink($well_known_file_name);
-		}
+		$well_known_file_name = "$well_known_directory/security.txt";
+
+		static::deleteFile(file_name: $well_known_file_name);
 		file_put_contents($well_known_file_name, $security);
 
 		echo BOLD . GREEN . "SUCCESS\n" . RESET;
 	}
 
-	final public static function generateHumans(array &$phx_config, string &$output): void
+	final public static function generateHumans(array &$arguments, array &$phx_config): void
 	{
 		echo BOLD . " | humans.txt: " . RESET;
 
-		$personal_website = "";
-		if($phx_config["personal_website"] !== "") {
-			$personal_website = "Site: {$phx_config["personal_website"]}\n";
-		}
-
-		$x = "";
-		if($phx_config["x"] !== "") {
-			$x = "X: {$phx_config["x"]}\n";
-		}
-
-		$github = "";
-		if($phx_config["github"] !== "") {
-			$github = "GitHub: {$phx_config["github"]}\n";
-		}
+		$personal_website = $phx_config["personal-website"] !== "" ? "Site: {$phx_config["personal-website"]}\n" : "";
+		$x = $phx_config["x"] !== "" ? "X: {$phx_config["x"]}\n" : "";
+		$github = $phx_config["github"] !== "" ? "GitHub: {$phx_config["github"]}\n" : "";
 
 		$languages = str_replace(",", "\n", $phx_config["languages"]);
 		$current_year = date("Y");
 
 		$humans = <<<TXT
-		Developer: {$phx_config["name_surname"]}
+		Developer: {$phx_config["name-surname"]}
 		$personal_website$x$github
 		Location: Earth
 
@@ -261,10 +285,9 @@ final class GenerateMetadataFilesInternals
 		PHX\n
 		TXT;
 
-		$file_name = "$output/humans.txt";
-		if(file_exists($file_name)) {
-			unlink($file_name);
-		}
+		$file_name = "{$arguments["output"]}/humans.txt";
+
+		static::deleteFile(file_name: $file_name);
 		file_put_contents($file_name, $humans);
 
 		echo BOLD . GREEN . "SUCCESS\n" . RESET;
