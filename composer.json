@@ -1,6 +1,6 @@
 {
 	"name": "andreapeverelli/phx-cli",
-	"description": "CLI companion for PHX framework",
+	"description": "CLI companion for PHX framework.",
 	"version": "3.0.0",
 	"type": "project",
 	"license": "GPL-3.0",

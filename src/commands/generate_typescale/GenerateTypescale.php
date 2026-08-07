@@ -44,6 +44,7 @@ trait GenerateTypescale
 				"$project_root/typescale.json",
 				"help" => "OUTPUT_FILE",
 				"optional" => true,
+				"sanitizer" => "file-path",
 			],
 			"--verbose" => [false, "optional" => true],
 		];

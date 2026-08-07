@@ -36,15 +36,21 @@ trait GeneratePalette
 				"$project_root/palette.json",
 				"help" => "OUTPUT_FILE",
 				"optional" => true,
+				"sanitizer" => "file-path",
 			],
 			"--verbose" => [false, "optional" => true],
 		];
 	}
 
+	private const GENERATE_PALETTE_CLI_CONFIGS = [
+		["argument" => "output", "config" => "palette-path"],
+	];
+
 	private static function generatePalette(array &$argv): int
 	{
-		if(is_int($arguments = static::getGeneratePaletteArguments())) return $arguments;
-		$arguments = static::getCommandArguments(argv: $argv, arguments: $arguments);
+		if($exit = static::loadCliConfigs(argv: $argv, configs: self::GENERATE_PALETTE_CLI_CONFIGS)) return $exit;
+
+		$arguments = static::getCommandArguments(argv: $argv, arguments: static::getGeneratePaletteArguments());
 
 		if(isset($arguments["help"])) return static::help(command: self::GENERATE_PALETTE_COMMAND);
 
@@ -54,9 +60,10 @@ trait GeneratePalette
 		$tonal_palettes = GeneratePaletteService::generateTonalPalettes(core_palette: $core_palette, verbose: $arguments["verbose"]);
 		GeneratePaletteService::writePalette(arguments: $arguments, tonal_palettes: $tonal_palettes);
 
+		static::writeCliConfigs(arguments: $arguments, configs: self::GENERATE_PALETTE_CLI_CONFIGS);
+
 		static::successMessage(message: "Palette generated in", output: $arguments["output"]);
 
 		return 0;
 	}
-
 }

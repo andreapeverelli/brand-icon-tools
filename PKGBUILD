@@ -31,6 +31,7 @@ build() {
 package() {
 	install -dm755 "$pkgdir/usr/share/$pkgname"
 	cp -r \
+		../composer.json \
 		../LICENSE \
 		../vendor \
 		../src \

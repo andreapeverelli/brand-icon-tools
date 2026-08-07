@@ -34,7 +34,7 @@ trait GenerateIconset
 				"$project_root/public/icons",
 				"help" => "OUTPUT_DIRECTORY",
 				"optional" => true,
-				"sanitizer" => "path",
+				"sanitizer" => "directory-path",
 			],
 			"--verbose" => [false, "optional" => true],
 		];
@@ -62,8 +62,6 @@ trait GenerateIconset
 			normalized_svg_path: $normalized_svg_path,
 			monochrome_svg_path: $monochrome_svg_path,
 		);
-
-		static::ensureDirectoryExists(directory: $arguments["output"], verbose: $arguments["verbose"]);
 
 		GenerateIconsetService::generateFavicons(arguments: $arguments, optimized_svg_path: $optimized_svg_path);
 		GenerateIconsetService::generateAppleIcons(

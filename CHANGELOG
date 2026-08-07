@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog,
 and this project adheres to Semantic Versioning.
 
-## [3.0.0] 2026-08-05
+## [3.0.0] 2026-08-06
 
 ### Added
  - generate:config tool (ex generate:init which now run all project setup)
@@ -17,6 +17,8 @@ and this project adheres to Semantic Versioning.
  - dependencies
  - generate:config non-interactive mode
  - all tools interactive mode
+ - complete rewrite
+ - generate:iconset temp assets uniqid filename
 
 ### Removed
  - example assets

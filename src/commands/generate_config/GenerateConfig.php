@@ -52,15 +52,22 @@ trait GenerateConfig
 		];
 	}
 
+	private const GENERATE_CONFIG_CLI_CONFIGS = [
+		["argument" => "output", "config" => "phx-config-path"],
+	];
+
 	private static function generateConfig(array &$argv): int
 	{
-		if(is_int($arguments = static::getGenerateConfigArguments())) return $arguments;
-		$arguments = static::getCommandArguments(argv: $argv, arguments: $arguments);
+		if($exit = static::loadCliConfigs(argv: $argv, configs: self::GENERATE_CONFIG_CLI_CONFIGS)) return $exit;
+
+		$arguments = static::getCommandArguments(argv: $argv, arguments: static::getGenerateConfigArguments());
 
 		if(isset($arguments["help"])) return static::help(command: self::GENERATE_CONFIG_COMMAND);
 
 		$config = GenerateConfigService::makeConfig(arguments: $arguments);
 		GenerateConfigService::writeConfig(arguments: $arguments, config: $config);
+
+		static::writeCliConfigs(arguments: $arguments, configs: self::GENERATE_CONFIG_CLI_CONFIGS);
 
 		static::successMessage(message: "PHX configuration generated in", output: $arguments["output"]);
 

@@ -32,34 +32,42 @@ trait GenerateMetadataFiles
 				"$project_root/phx.config.json",
 				"help" => "PHX_CONFIG_FILE",
 				"optional" => true,
+				"sanitizer" => "file-path",
 			],
 			"--palette" => [
 				"$project_root/palette.json",
 				"help" => "PALETTE_FILE",
 				"optional" => true,
+				"sanitizer" => "file-path",
 			],
 			"--icons-uri" => [
 				"/icons",
 				"help" => "ICONS_URI",
 				"optional" => true,
-				"sanitizer" => "path"
+				"sanitizer" => "uri"
 			],
 			"--output" => [
 				"$project_root/public",
 				"help" => "OUTPUT_DIRECTORY",
 				"optional" => true,
-				"sanitizer" => "path"
+				"sanitizer" => "directory-path"
 			],
 			"--verbose" => [false, "optional" => true],
 		];
 	}
 
+	private const GENERATE_METADATA_FILES_CLI_CONFIGS = [
+		["argument" => "phx-config", "config" => "phx-config-path"],
+		["argument" => "palette", "config" => "palette-path"],
+	];
+
 	private static function generateMetadataFiles(array &$argv): int
 	{
-		if(is_int($arguments = static::getGenerateMetadataFilesArguments())) return $arguments;
-		$arguments = static::getCommandArguments(argv: $argv, arguments: $arguments);
+		if($exit = static::loadCliConfigs(argv: $argv, configs: self::GENERATE_METADATA_FILES_CLI_CONFIGS)) return $exit;
 
-		if(isset($arguments["help"])) return staatic::help(command: self::GENERATE_METADATA_FILES_COMMAND);
+		$arguments = static::getCommandArguments(argv: $argv, arguments: static::getGenerateMetadataFilesArguments());
+
+		if(isset($arguments["help"])) return static::help(command: self::GENERATE_METADATA_FILES_COMMAND);
 
 		if(is_int($files = GenerateMetadataFilesService::importFiles(arguments: $arguments))) return $files;
 		[
@@ -68,8 +76,6 @@ trait GenerateMetadataFiles
 		] = $files;
 
 		echo BOLD . "Generating metadata files:\n" . RESET;
-
-		static::ensureDirectoryExists(directory: $arguments["output"], verbose: $arguments["verbose"]);
 
 		GenerateMetadataFilesService::generateManifest(
 			arguments: $arguments,

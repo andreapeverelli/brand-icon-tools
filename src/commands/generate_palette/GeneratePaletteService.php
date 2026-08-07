@@ -20,6 +20,403 @@ final class GeneratePaletteService
 
 	private function __construct() {}
 
+	private const ROLES_PROPERTIES = [
+			"standard" => [
+				"role" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"on-role" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"role-container" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"on-role-container" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"role-fixed" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"on-role-fixed" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"role-fixed-dim" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"on-role-fixed-variant" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+			],
+			"special" => [
+				"inverse-primary" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"surface" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"on-surface" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"surface-variant" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"on-surface-variant" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"surface-container-highest" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"surface-container-high" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"surface-container" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"surface-container-low" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"surface-container-lowest" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"inverse-surface" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"inverse-on-surface" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"surface-tint" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"surface-tint-color" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"outline" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"outline-variant" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"background" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"on-background" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"surface-bright" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"surface-dim" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"scrim" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+				"shadow" => [
+					"palette" => [
+						"light" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+						"dark" => [
+							"default-contrast" => ,
+							"high-contrast" => ,
+						],
+					],
+					"background-of" => [],
+				],
+			],
+	];
+
 	final public static function checkDependencies(bool &$verbose): void
 	{
 		static::runCommand(
@@ -121,7 +518,7 @@ final class GeneratePaletteService
 		];
 
 		foreach($base_colors as $name => $value) {
-			$tonal_palettes[$name] = static::associateTonalPalette(tonal_palette: static::generateTonalPalette(
+			$tonal_palettes[$name] = static::indexTonalPalette(tonal_palette: static::generateTonalPalette(
 				name: $name,
 				hue: $value["hue"],
 				chroma: $value["chroma"],
@@ -149,9 +546,9 @@ final class GeneratePaletteService
 		), true);
 	}
 
-	private static function associateTonalPalette(array $tonal_palette): array
+	private static function indexTonalPalette(array $tonal_palette): array
 	{
-		$tones = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98, 99, 100];
+		$tones = [0, 4, 6, 10, 12, 17, 20, 22, 24, 30, 40, 50, 60, 70, 80, 87, 90, 92, 94, 95, 96, 98, 99, 100];
 
 		$palette = [];
 		foreach($tonal_palette["srgb"] as $i => $tone) {
@@ -166,6 +563,11 @@ final class GeneratePaletteService
 					"r" => $tonal_palette["rec_2020"][$i]["coords"][0],
 					"g" => $tonal_palette["rec_2020"][$i]["coords"][1],
 					"b" => $tonal_palette["rec_2020"][$i]["coords"][2],
+				],
+				"hct" => [
+					"h" => $tonal_palette["hct"][$i]["coords"][0],
+					"c" => $tonal_palette["hct"][$i]["coords"][1],
+					"t" => $tonal_palette["hct"][$i]["coords"][2],
 				],
 			];
 		}

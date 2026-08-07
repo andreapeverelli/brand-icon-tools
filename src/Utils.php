@@ -38,6 +38,57 @@ trait Utils
 		return 1;
 	}
 
+	private static function loadCliConfigs(array &$argv, array $configs): int
+	{
+		if(is_int($project_root = static::getProjectRoot())) return $project_root;
+		$cli_config_path = "$project_root/.phx/cli.config.json";
+
+		if(file_exists($cli_config_path))
+			$cli_configs = json_decode(file_get_contents($cli_config_path), true);
+		else $cli_configs = [];
+
+		foreach($configs as $config) {
+			if(!in_array("--{$config["argument"]}", $argv) && isset($cli_configs[$config["config"]]))
+				array_push($argv, "--{$config["argument"]}", $cli_configs[$config["config"]]);
+		}
+
+		return 0;
+	}
+
+	private static function writeCliConfigs(array &$arguments, array $configs): int
+	{
+		if(is_int($project_root = static::getProjectRoot())) return $project_root;
+		$cli_config_dir = "$project_root/.phx";
+		$cli_config_path = "$cli_config_dir/cli.config.json";
+
+		if(file_exists($cli_config_path)) {
+			$cli_configs = json_decode(file_get_contents($cli_config_path), true);
+			unlink($cli_config_path);
+		} else {
+			static::ensureDirectoryExists(directory: $cli_config_dir, verbose: $arguments["verbose"]);
+			$cli_configs = [];
+		}
+
+		foreach($configs as $config) {
+			$cli_configs[$config["config"]] = $arguments[$config["argument"]];
+		}
+
+		file_put_contents($cli_config_path, json_encode($cli_configs, JSON_PRETTY_PRINT));
+
+		return 0;
+	}
+
+	private static function removeArgument(array &$argv, string $argument, bool $has_value = true): void
+	{
+		if(!($argument_index = array_search("--$argument", $argv))) return;
+
+		unset($argv[$argument_index]);
+		if($has_value) unset($argv[$argument_index + 1]);
+
+		$argv = array_values($argv);
+	
+	}
+
 	private static function badArguments(?string $tool = null): int
 	{
 		if(!$tool) {
@@ -87,7 +138,9 @@ trait Utils
 
 			foreach($arguments as $key => $value) {
 				$new_key = ltrim($key, "-");
-				$command_arguments[$new_key] = $value[0] ?? null;
+
+				if(isset($parsed_arguments[$key])) $command_arguments[$new_key] = $parsed_arguments[$key];
+				else if(isset($value[0])) $command_arguments[$new_key] = $value[0];
 
 				if(!isset($parsed_arguments[$key]) && $new_key !== "verbose") {
 					$format = isset($value["format"]) ? " ({$value["format"]})" : "";
@@ -99,20 +152,45 @@ trait Utils
 				}
 
 				if(isset($value["sanitizer"])) {
-					if($value["sanitizer"] === "path")
-						$command_arguments[$new_key] = static::pathSanitizer(value: $command_arguments[$new_key]);
-				}
+					if($value["sanitizer"] === "file-path")
+						$command_arguments[$new_key] = static::filePathSanitizer(value: $command_arguments[$new_key]);
+					if($value["sanitizer"] === "directory-path")
+						$command_arguments[$new_key] = static::directoryPathSanitizer(value: $command_arguments[$new_key]);
+					if($value["sanitizer"] === "uri")
+						$command_arguments[$new_key] = static::uriSanitizer(value: $command_arguments[$new_key]);
+	}
 			}
 		}
 
 		return $command_arguments;
 	}
 
-	private static function pathSanitizer(string $value): string
+	private static function filePathSanitizer(string $value): string
 	{
-		if(str_ends_with($value, "/")) return substr($value, 0, strlen($value) - 1);
+		return static::pathSanitizer(value: $value, is_file: true);
+	}
+
+	private static function directoryPathSanitizer(string $value): string
+	{
+		return static::pathSanitizer(value: $value, is_file: false);
+	}
+
+	private static function pathSanitizer(string $value, bool $is_file): string
+	{
+		if(str_ends_with($value, "/")) $value .= ".";
+
+		$filename = basename($value) !== "." ? "/" . basename($value) : "";
+		static::ensureDirectoryExists(directory: $is_file ? substr($value, 0, -strlen($filename)) : $value, verbose: false);
+		$dirpath = realpath(dirname($value));
+
+		$value = "$dirpath$filename";
 
 		return $value;
+	}
+
+	private static function uriSanitizer(string $value): string
+	{
+		return rtrim($value, "/");
 	}
 
 	private static function runCommand(
@@ -155,7 +233,7 @@ trait Utils
 				throw new \RuntimeException("$error_message\n\n$output");
 			} else {
 				throw new \RuntimeException(<<<ERROR
-				PHX-TOOLS failed to run '$command':
+				PHX-CLI failed to run '$command':
 				
 				$output
 				ERROR);

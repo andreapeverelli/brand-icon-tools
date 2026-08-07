@@ -41,7 +41,6 @@ final class SetupService
 		$description = $phx_config["description"];
 		$name = $phx_config["name-surname"];
 		$email = $phx_config["email"];
-		$homepage = $phx_config["homepage"] ? "--homepage=\"{$phx_config["homepage"]}\"" : "";
 		$license = $phx_config["license"];
 
 		static::runCommand(
@@ -52,7 +51,7 @@ final class SetupService
 				--name="$vendor/$app_name" \
 				--description="$description" \
 				--author="$name <$email>" \
-				--type="project"$homepage \
+				--type="project" \
 				--license="$license" \
 				--autoload="src/" \
 				--stability="stable"	

@@ -34,6 +34,7 @@ trait Init
 		if(is_int($setup_arguments = static::getSetupArguments())) return $setup_arguments;
 		if(is_int($generate_iconset_arguments = static::getGenerateIconsetArguments())) return $generate_iconset_arguments;
 		if(is_int($generate_palette_arguments = static::getGeneratePaletteArguments())) return $generate_palette_arguments;
+		if(is_int($generate_metadata_files_arguments = static::getGenerateMetadataFilesArguments())) return $generate_metadata_files_arguments;
 		if(is_int($generate_typescale_arguments = static::getGenerateTypescaleArguments())) return $generate_typescale_arguments;
 
 		$arguments = [
@@ -42,10 +43,12 @@ trait Init
 			...$setup_arguments,
 			...$generate_iconset_arguments,
 			...$generate_palette_arguments,
+			...$generate_metadata_files_arguments,
 			...$generate_typescale_arguments,
 		];
 		unset($arguments["--output"]);
 
+		ksort($arguments);
 		return $arguments;
 	}
 
@@ -53,22 +56,31 @@ trait Init
 	{
 		if(in_array("--help", $argv)) return static::help(command: self::INIT_COMMAND);
 
-		if($exit = static::registerProject($argv)) return $exit;
+		static::successMessage(message: "Welcome to PHX.\nInitialization process is starting.");
+
+		if($exit = static::registerProject(argv: $argv)) return $exit;
 		echo "\n";
 
-		if($exit = static::generateConfig($argv)) return $exit;
+		if($exit = static::generateConfig(argv: $argv)) return $exit;
+		static::removeArgument(argv: $argv, argument: "output");
 		echo "\n";
 
-		if($exit = static::setup($argv)) return $exit;
+		if($exit = static::setup(argv: $argv)) return $exit;
 		echo "\n";
 
-		if($exit = static::generateIconset($argv)) return $exit;
+		if($exit = static::generateIconset(argv: $argv)) return $exit;
+		static::removeArgument(argv: $argv, argument: "output");
 		echo "\n";
 
-		if($exit = static::generatePalette($argv)) return $exit;
+		if($exit = static::generatePalette(argv: $argv)) return $exit;
+		static::removeArgument(argv: $argv, argument: "output");
 		echo "\n";
 
-		if($exit = static::generateTypescale($argv)) return $exit;
+		if($exit = static::generateMetadataFiles(argv: $argv)) return $exit;
+		static::removeArgument(argv: $argv, argument: "output");
+		echo "\n";
+
+		if($exit = static::generateTypescale(argv: $argv)) return $exit;
 
 		return 0;
 	}

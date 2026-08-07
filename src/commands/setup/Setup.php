@@ -32,15 +32,21 @@ trait Setup
 				"$project_root/phx.config.json",
 				"help" => "PHX_CONFIG_FILE",
 				"optional" => true,
+				"sanitizer" => "file-path",
 			],
 			"--verbose" => [false, "optional" => true],
 		];
 	}
 
+	private const SETUP_CLI_CONFIGS = [
+		["argument" => "phx-config", "config" => "phx-config-path"],
+	];
+
 	private static function setup(array &$argv): int
 	{
-		if(is_int($arguments = static::getSetupArguments())) return $arguments;
-		$arguments = static::getCommandArguments(argv: $argv, arguments: $arguments);
+		if($exit = static::loadCliConfigs(argv: $argv, configs: self::SETUP_CLI_CONFIGS)) return $exit;
+
+		$arguments = static::getCommandArguments(argv: $argv, arguments: static::getSetupArguments());
 
 		if(isset($arguments["help"])) return static::help(command: self::SETUP_COMMAND);
 
